@@ -1,0 +1,39 @@
+name: 3moons
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 3moons-php82:local
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: 2moons
+      MARIADB_USER: 2moons
+      MARIADB_PASSWORD: 2moons
+    ports:
+      - "13307:3306"
+    volumes:
+      - yamilrh_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  yamilrh_db:
+    external: true
+    name: 2moons-v20_yamilrh_db
