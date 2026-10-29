@@ -62,8 +62,9 @@ class ShowResearchPage extends AbstractGamePage
 
 		$db = Database::get();
 
-		$elementId		= $USER['b_tech_id'];
-		$costResources	= BuildFunctions::getElementPrice($USER, $PLANET, $elementId, false, $PLANET[$elementId]);
+		$elementId		= (int) $CurrentQueue[0][0];
+		$BuildLevel		= (int) $CurrentQueue[0][1];
+		$costResources	= BuildFunctions::getElementPrice($USER, $PLANET, $elementId, false, $BuildLevel);
 		
 		if($PLANET['id'] == $USER['b_tech_planet'])
 		{
@@ -193,7 +194,7 @@ class ShowResearchPage extends AbstractGamePage
 				
 				$CPLANET[$resource[31].'_inter']	= $this->ecoObj->getNetworkLevel($USER, $CPLANET);
 				
-				$BuildEndTime       += BuildFunctions::getBuildingTime($USER, $CPLANET, NULL, $ListIDArray[0]);
+				$BuildEndTime       += BuildFunctions::getBuildingTime($USER, $CPLANET, $ListIDArray[0], NULL, false, $ListIDArray[1]);
 				$ListIDArray[3]		= $BuildEndTime;
 				$NewCurrentQueue[]	= $ListIDArray;				
 			}
@@ -213,10 +214,14 @@ class ShowResearchPage extends AbstractGamePage
 
 		if(!in_array($elementId, $reslist['tech'])
 			|| !BuildFunctions::isTechnologieAccessible($USER, $PLANET, $elementId)
-			|| !$this->CheckLabSettingsInQueue()
 		)
 		{
-			return false;
+			return 'unavailable';
+		}
+
+		if(!$this->CheckLabSettingsInQueue())
+		{
+			return 'busy';
 		}
 
 		$CurrentQueue = unserialize($USER['b_tech_queue'] ?? '');
@@ -230,7 +235,7 @@ class ShowResearchPage extends AbstractGamePage
 				
 		if(Config::get()->max_elements_tech != 0 && Config::get()->max_elements_tech <= $ActualCount)
 		{
-			return false;
+			return 'queuefull';
 		}
 
 		$BuildLevel					= $USER[$resource[$elementId]] + 1;
@@ -238,14 +243,14 @@ class ShowResearchPage extends AbstractGamePage
 		{
 			if($pricelist[$elementId]['max'] < $BuildLevel)
 			{
-				return false;
+				return 'maxlevel';
 			}
 
 			$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $elementId, !$AddMode, $BuildLevel);
 			
 			if(!BuildFunctions::isElementBuyable($USER, $PLANET, $elementId, $costResources))
 			{
-				return false;
+				return 'resources';
 			}
 			
 			if(isset($costResources[901])) { $PLANET[$resource[901]]	-= $costResources[901]; }
@@ -274,7 +279,7 @@ class ShowResearchPage extends AbstractGamePage
 				
 			if($pricelist[$elementId]['max'] < $BuildLevel)
 			{
-				return false;
+				return 'maxlevel';
 			}
 				
 			$elementTime    			= BuildFunctions::getBuildingTime($USER, $PLANET, $elementId, NULL, !$AddMode, $BuildLevel);
@@ -284,6 +289,73 @@ class ShowResearchPage extends AbstractGamePage
 			$USER['b_tech_queue']		= serialize($CurrentQueue);
 		}
 		return true;
+	}
+
+	private function AddBuildingToQueueTarget($elementId, $TargetLevel, $AddMode = true)
+	{
+		global $USER, $resource, $pricelist;
+
+		$TargetLevel	= (int) $TargetLevel;
+
+		if($TargetLevel <= 0 || !isset($pricelist[$elementId]))
+		{
+			return false;
+		}
+
+		$ProjectedLevel	= (int) $USER[$resource[$elementId]];
+		$CurrentQueue	= unserialize($USER['b_tech_queue'] ?? '');
+
+		if(is_array($CurrentQueue))
+		{
+			foreach($CurrentQueue as $QueueEntry)
+			{
+				if(!is_array($QueueEntry) || (int) ($QueueEntry[0] ?? 0) !== (int) $elementId)
+					continue;
+
+				$ProjectedLevel++;
+			}
+		}
+
+		if($pricelist[$elementId]['max'] > 0)
+		{
+			$TargetLevel	= min($TargetLevel, (int) $pricelist[$elementId]['max']);
+		}
+
+		$StartLevel	= $ProjectedLevel;
+		$Queued		= 0;
+		$Reason		= NULL;
+
+		while($ProjectedLevel < $TargetLevel)
+		{
+			$Result	= $this->AddBuildingToQueue($elementId, $AddMode);
+
+			if($Result !== true)
+			{
+				$Reason	= $Result;
+				break;
+			}
+
+			$ProjectedLevel++;
+			$Queued++;
+		}
+
+		if($Queued === 0 && $Reason === NULL)
+		{
+			$Reason	= $StartLevel >= $TargetLevel ? 'already' : 'unavailable';
+		}
+
+		$_SESSION['queueNotice']	= array(
+			'type'		=> 'research',
+			'element'	=> (int) $elementId,
+			'from'		=> $StartLevel,
+			'to'		=> $ProjectedLevel,
+			'target'	=> $TargetLevel,
+			'queued'	=> $Queued,
+			'partial'	=> $Queued > 0 && $ProjectedLevel < $TargetLevel,
+			'reason'	=> $Reason,
+		);
+
+		return $Queued > 0;
 	}
 
 	private function getQueueData()
@@ -336,6 +408,7 @@ class ShowResearchPage extends AbstractGamePage
 		$TheCommand		= HTTP::_GP('cmd','');
 		$elementId     	= HTTP::_GP('tech', 0);
 		$ListID     	= HTTP::_GP('listid', 0);
+		$TargetLevel	= HTTP::_GP('target', 0);
 		
 		$PLANET[$resource[31].'_inter']	= ResourceUpdate::getNetworkLevel($USER, $PLANET);	
 
@@ -350,7 +423,14 @@ class ShowResearchPage extends AbstractGamePage
 					$this->RemoveBuildingFromQueue($ListID);
 				break;
 				case 'insert':
-					$this->AddBuildingToQueue($elementId, true);
+					if($TargetLevel > 0)
+					{
+						$this->AddBuildingToQueueTarget($elementId, $TargetLevel, true);
+					}
+					else
+					{
+						$this->AddBuildingToQueue($elementId, true);
+					}
 				break;
 				case 'destroy':
 					$this->AddBuildingToQueue($elementId, false);
@@ -362,6 +442,7 @@ class ShowResearchPage extends AbstractGamePage
 		
 		$bContinue		= $this->CheckLabSettingsInQueue();
 		
+		$QueueNotice	= $this->getQueueNotice();
 		$queueData		= $this->getQueueData();
 		$TechQueue		= $queueData['queue'];
 		$QueueCount		= count($TechQueue);
@@ -403,6 +484,7 @@ class ShowResearchPage extends AbstractGamePage
 			'IsLabinBuild'	=> !$bContinue,
 			'IsFullQueue'	=> Config::get()->max_elements_tech == 0 || Config::get()->max_elements_tech == count($TechQueue),
 			'Queue'			=> $TechQueue,
+			'QueueNotice'	=> $QueueNotice,
 		));
 		
 		$this->display('page.research.default.tpl');

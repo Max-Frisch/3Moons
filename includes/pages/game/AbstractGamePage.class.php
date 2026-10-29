@@ -208,6 +208,49 @@ abstract class AbstractGamePage
 			'themeSettings'		=> $THEME->getStyleSettings(),
 		));
 	}
+	protected function getQueueNotice()
+	{
+		global $LNG;
+
+		if(empty($_SESSION['queueNotice']))
+		{
+			return NULL;
+		}
+
+		$notice	= $_SESSION['queueNotice'];
+		unset($_SESSION['queueNotice']);
+
+		if(!is_array($notice) || empty($notice['element']))
+		{
+			return NULL;
+		}
+
+		$name	= isset($LNG['tech'][$notice['element']]) ? $LNG['tech'][$notice['element']] : $notice['element'];
+
+		if(!empty($notice['queued']))
+		{
+			$message	= sprintf($LNG['bd_queue_notice'], $name, $notice['from'], $notice['to']);
+			if(!empty($notice['partial']))
+			{
+				$message	.= ' '.sprintf($LNG['bd_queue_partial'], $notice['target']);
+			}
+		}
+		else
+		{
+			$message	= sprintf($LNG['bd_queue_none'], $name);
+		}
+
+		if(!empty($notice['reason']) && isset($LNG['bd_queue_stop_'.$notice['reason']]))
+		{
+			$message	.= ' '.$LNG['bd_queue_stop_'.$notice['reason']];
+		}
+
+		return array(
+			'type'		=> isset($notice['type']) ? $notice['type'] : '',
+			'message'	=> $message,
+		);
+	}
+
 	protected function printMessage($message, $redirectButtons = NULL, $redirect = NULL, $fullSide = true)
 	{
 		$this->assign(array(

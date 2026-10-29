@@ -6,6 +6,10 @@
 		{$LNG.lm_buildings}
 	</div>
 
+	{if !empty($QueueNotice)}
+	<div class="queue_notice" style="border: 1px solid #4a90e2; padding: 8px; margin-bottom: 10px;">{$QueueNotice.message}</div>
+	{/if}
+
 	{if !empty($Queue)}
 	<div id="buildlist" class="buildlist">
 		<table style="width:100%;">
@@ -122,6 +126,14 @@
 								<input type="hidden" name="cmd" value="insert">
 								<input type="hidden" name="building" value="{$ID}">
 								<button type="submit" class="build_submit construct_button">{if $Element.level == 0}{$LNG.bd_build}{else}{$LNG.bd_build_next_level}{$Element.levelToBuild + 1}{/if}</button>
+							</form>
+							<form action="game.php?page=buildings" method="post" class="build_form" style="margin-top:6px;">
+								<input type="hidden" name="cmd" value="insert">
+								<input type="hidden" name="building" value="{$ID}">
+								<label style="font-size:11px;">{$LNG.bd_target_level}
+									<input type="number" name="target" min="{$Element.levelToBuild + 1}" max="{$Element.maxLevel}" value="{$Element.levelToBuild + 1}" style="width:52px;" required>
+								</label>
+								<button type="submit" class="build_submit">{$LNG.bd_queue_target}</button>
 							</form>
 							{else}
 							<div class="construct_button_lost">

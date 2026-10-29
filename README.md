@@ -12,6 +12,8 @@ quality-of-life features that make the live server enjoyable to play.
 - Base game: complete (buildings, research, shipyard, fleets, missions, moons,
   alliances, chat, messages, admin, multi-universe, battle simulator, ...).
 - Stabilization: P0 complete - all game/admin pages pass the smoke test.
+- Building and research queues accept an absolute target level; the queue stops
+  at the level cap, field limit, queue cap, or missing resources and reports why.
 - Niburuspace modules: mostly absent; see [docs/PRIORITIES.md](docs/PRIORITIES.md).
 - Local dev: Docker Compose, no XAMPP and no host PHP changes required.
 

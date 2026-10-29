@@ -6,6 +6,10 @@
 		{$LNG.lm_research}
 	</div>
 
+	{if !empty($QueueNotice)}
+	<div class="queue_notice" style="border: 1px solid #4a90e2; padding: 8px; margin-bottom: 10px;">{$QueueNotice.message}</div>
+	{/if}
+
 	{if $IsLabinBuild}
 		<div width="99%" id="infobox" style="border: 2px solid red; text-align:center;background:transparent">{$LNG.bd_building_lab}</div>
 	{/if}
@@ -90,6 +94,14 @@
 							<input type="hidden" name="cmd" value="insert">
 							<input type="hidden" name="tech" value="{$ID}">
 							<button type="submit" class="build_submit construct_button">{if $Element.level == 0}{$LNG.bd_tech}{else}{$LNG.bd_tech_next_level}{$Element.levelToBuild + 1}{/if}</button>
+						</form>
+						<form action="game.php?page=research" method="post" class="build_form" style="margin-top:6px;">
+							<input type="hidden" name="cmd" value="insert">
+							<input type="hidden" name="tech" value="{$ID}">
+							<label style="font-size:11px;">{$LNG.bd_target_level}
+								<input type="number" name="target" min="{$Element.levelToBuild + 1}" max="{$Element.maxLevel}" value="{$Element.levelToBuild + 1}" style="width:52px;" required>
+							</label>
+							<button type="submit" class="build_submit">{$LNG.bd_queue_target}</button>
 						</form>
 					{/if}
 				</div>

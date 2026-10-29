@@ -129,7 +129,7 @@ class ShowBuildingsPage extends AbstractGamePage
 			|| (($Element == 15 || $Element == 21) && !empty($PLANET['b_hangar_id']))
 			|| (!$AddMode && $PLANET[$resource[$Element]] == 0)
 		)
-			return;
+			return 'unavailable';
 		
 		$CurrentQueue = unserialize($PLANET['b_building_id'] ?? '');
 
@@ -145,10 +145,14 @@ class ShowBuildingsPage extends AbstractGamePage
 
 		$config	= Config::get();
 
-		if (($config->max_elements_build != 0 && $ActualCount == $config->max_elements_build)
-			|| ($AddMode && $PLANET["field_current"] >= ($CurrentMaxFields - $ActualCount)))
+		if ($config->max_elements_build != 0 && $ActualCount >= $config->max_elements_build)
 		{
-			return;
+			return 'queuefull';
+		}
+
+		if ($AddMode && $PLANET["field_current"] >= ($CurrentMaxFields - $ActualCount))
+		{
+			return 'nofields';
 		}
 	
 		$BuildMode 			= $AddMode ? 'build' : 'destroy';
@@ -157,12 +161,12 @@ class ShowBuildingsPage extends AbstractGamePage
 		if($ActualCount == 0)
 		{
 			if($pricelist[$Element]['max'] < $BuildLevel)
-				return;
+				return 'maxlevel';
 
 			$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element, !$AddMode, $BuildLevel);
 			
 			if(!BuildFunctions::isElementBuyable($USER, $PLANET, $Element, $costResources))
-				return;
+				return 'resources';
 			
 			if(isset($costResources[901])) { $PLANET[$resource[901]]	-= $costResources[901]; }
 			if(isset($costResources[902])) { $PLANET[$resource[902]]	-= $costResources[902]; }
@@ -191,10 +195,10 @@ class ShowBuildingsPage extends AbstractGamePage
 			$BuildLevel					+= $addLevel;
 			
 			if(!$AddMode && $BuildLevel == 0)
-				return;
+				return 'unavailable';
 				
 			if($pricelist[$Element]['max'] < $BuildLevel)
-				return;
+				return 'maxlevel';
 				
 			$elementTime    			= BuildFunctions::getBuildingTime($USER, $PLANET, $Element, NULL, !$AddMode, $BuildLevel);
 			$BuildEndTime				= $CurrentQueue[$ActualCount - 1][3] + $elementTime;
@@ -202,6 +206,74 @@ class ShowBuildingsPage extends AbstractGamePage
 			$PLANET['b_building_id']	= serialize($CurrentQueue);		
 		}
 
+		return true;
+	}
+
+	private function AddBuildingToQueueTarget($Element, $TargetLevel, $AddMode = true)
+	{
+		global $PLANET, $USER, $resource, $pricelist;
+
+		$TargetLevel	= (int) $TargetLevel;
+
+		if($TargetLevel <= 0 || !isset($pricelist[$Element]))
+		{
+			return false;
+		}
+
+		$ProjectedLevel	= (int) $PLANET[$resource[$Element]];
+		$CurrentQueue	= unserialize($PLANET['b_building_id'] ?? '');
+
+		if(is_array($CurrentQueue))
+		{
+			foreach($CurrentQueue as $QueueEntry)
+			{
+				if(!is_array($QueueEntry) || (int) ($QueueEntry[0] ?? 0) !== (int) $Element)
+					continue;
+
+				$ProjectedLevel	+= (($QueueEntry[4] ?? 'build') === 'destroy') ? -1 : 1;
+			}
+		}
+
+		if($pricelist[$Element]['max'] > 0)
+		{
+			$TargetLevel	= min($TargetLevel, (int) $pricelist[$Element]['max']);
+		}
+
+		$StartLevel	= $ProjectedLevel;
+		$Queued		= 0;
+		$Reason		= NULL;
+
+		while($ProjectedLevel < $TargetLevel)
+		{
+			$Result	= $this->AddBuildingToQueue($Element, $AddMode);
+
+			if($Result !== true)
+			{
+				$Reason	= $Result;
+				break;
+			}
+
+			$ProjectedLevel	+= $AddMode ? 1 : -1;
+			$Queued++;
+		}
+
+		if($Queued === 0 && $Reason === NULL)
+		{
+			$Reason	= $StartLevel >= $TargetLevel ? 'already' : 'unavailable';
+		}
+
+		$_SESSION['queueNotice']	= array(
+			'type'		=> 'build',
+			'element'	=> (int) $Element,
+			'from'		=> $StartLevel,
+			'to'		=> $ProjectedLevel,
+			'target'	=> $TargetLevel,
+			'queued'	=> $Queued,
+			'partial'	=> $Queued > 0 && $ProjectedLevel < $TargetLevel,
+			'reason'	=> $Reason,
+		);
+
+		return $Queued > 0;
 	}
 
 	private function getQueueData()
@@ -247,6 +319,7 @@ class ShowBuildingsPage extends AbstractGamePage
 		{
 			$Element     	= HTTP::_GP('building', 0);
 			$ListID      	= HTTP::_GP('listid', 0);
+			$TargetLevel	= HTTP::_GP('target', 0);
 			switch($TheCommand)
 			{
 				case 'cancel':
@@ -256,7 +329,14 @@ class ShowBuildingsPage extends AbstractGamePage
 					$this->RemoveBuildingFromQueue($ListID);
 				break;
 				case 'insert':
-					$this->AddBuildingToQueue($Element, true);
+					if($TargetLevel > 0)
+					{
+						$this->AddBuildingToQueueTarget($Element, $TargetLevel, true);
+					}
+					else
+					{
+						$this->AddBuildingToQueue($Element, true);
+					}
 				break;
 				case 'destroy':
 					$this->AddBuildingToQueue($Element, false);
@@ -268,6 +348,7 @@ class ShowBuildingsPage extends AbstractGamePage
 
 		$config				= Config::get();
 
+		$QueueNotice		= $this->getQueueNotice();
 		$queueData	 		= $this->getQueueData();
 		$Queue	 			= $queueData['queue'];
 		$QueueCount			= count($Queue);
@@ -351,6 +432,7 @@ class ShowBuildingsPage extends AbstractGamePage
 			'CanBuildElement'	=> $CanBuildElement,
 			'RoomIsOk'			=> $RoomIsOk,
 			'Queue'				=> $Queue,
+			'QueueNotice'		=> $QueueNotice,
 			'isBusy'			=> array('shipyard' => !empty($PLANET['b_hangar_id']), 'research' => $USER['b_tech_planet'] != 0),
 			'HaveMissiles'		=> (bool) $PLANET[$resource[503]] + $PLANET[$resource[502]],
 		));

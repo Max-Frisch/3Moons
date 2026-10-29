@@ -27,6 +27,7 @@ The P0 stabilization pass is complete. Remaining known work is feature-level
 | B013 | fixed | Admin / search | Undefined `$RESULT` / `$OrderBYParse` on first load | No defaults before the search branches | Initialized defaults |
 | B014 | fixed | Admin / bans+multiips | Undefined `$bo_select_title`, `$bo_order_id`, `$mip_ip` | Controllers did not assign language keys used by templates | Assigned them |
 | B015 | fixed | Runtime / cache | `session_start(): ... /cache/sessions/... No such file` | Clearing cache removed `cache/sessions` and `cache/templates` | Recreated them; `.gitkeep` files now keep them in the repo |
+| B016 | fixed | Game / research queue | Cancelling research 503s with `Undefined array key <techId>`; refund can use the wrong tech | `ShowResearchPage::CancelBuildingFromQueue()` used `$USER['b_tech_id']` and `$PLANET[$elementId]` (planet has no numeric tech keys) | Read the element/level from `$CurrentQueue[0]` and price with that level, matching the building queue. Also fixed the research `remove` time recompute (`getBuildingTime()` argument order) |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

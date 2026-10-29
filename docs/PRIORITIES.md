@@ -7,7 +7,7 @@ relative (S = hours, M = days, L = multi-day), not calendar estimates.
 |---|---|---|---|---|---|---|
 | P0 | PHP 8 stabilization + admin 503s | Very high | S-M | Low | - | DONE 2026-10-29. 64/64 smoke pages pass. |
 | P0 | Smoke test for game + admin | High | S | Low | - | DONE. `tools/smoke.sh` (use `ADMIN=1` for admin). |
-| P1 | Target-level / multi-level build+research+shipyard queue | Very high | M | Medium | P0 | The most-felt UX gap; reuses the existing serialized queue. |
+| P1 | Target-level / multi-level build+research+shipyard queue | Very high | M | Medium | P0 | DONE 2026-10-29. Buildings + research accept an absolute target level and loop the existing queue; stop reasons shown. Shipyard already queues batches by quantity; no level concept. |
 | P2 | Bug sweep: game pages, admin pages, MySQL errors | High | M | Low | P0 | Crawl every page, fix warnings, document exceptions. |
 | P3 | Senate completion: Achievements + AP + governator scaling | High | M-L | Medium | P0 | Officers + governators already render on `page=officier`; governator scaling is stuck at the 10% base because AP/achievements are missing. |
 | P4 | Academy (27 skills, points, effects) | High | L | Medium | P3 | AP/points source overlaps achievements. |
@@ -25,7 +25,8 @@ relative (S = hours, M = days, L = multi-day), not calendar estimates.
 
 1. **P0 stabilization** (done): research warning, admin superglobals,
    Smarty/sprintf defects, smoke test.
-2. **P1 target-level queue**: highest gameplay impact for the least new surface.
+2. **P1 target-level queue** (done): buildings and research queue to an absolute
+   target level with a stop reason; research cancel/refund fixed (B016).
 3. **P2 bug sweep**: clean the rest of the game/admin surface.
 4. **P3/P4/P6**: Senate/achievements, Academy, progression - the Niburu identity.
 5. **P5/P7/P8/P9**: Arsenal/market, black market, planetarium, collider/empire.
