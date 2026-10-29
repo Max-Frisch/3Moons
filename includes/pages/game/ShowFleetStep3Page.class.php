@@ -63,7 +63,7 @@ class ShowFleetStep3Page extends AbstractGamePage
 		$fleetStorage	= $formData['fleetRoom'];
 		$fleetSpeed		= $formData['fleetSpeed'];
 
-		$ownPlanet		= $formData['ownPlanet'];
+		$ownPlanet		= isset($formData['ownPlanet']) ? $formData['ownPlanet'] : $PLANET['id'];
 
 		if($ownPlanet != $PLANET['id']){
 
@@ -167,14 +167,14 @@ class ShowFleetStep3Page extends AbstractGamePage
 		}
 		else
 		{
-			if ($targetPlanetData["destruyed"] != 0) {
+			if (empty($targetPlanetData)) {
 				$this->printMessage($LNG['fl_no_target'], array(array(
 					'label'	=> $LNG['sys_back'],
 					'url'	=> 'game.php?page=fleet1'
 				)));
 			}
-				
-			if (empty($targetPlanetData)) {
+
+			if ($targetPlanetData["destruyed"] != 0) {
 				$this->printMessage($LNG['fl_no_target'], array(array(
 					'label'	=> $LNG['sys_back'],
 					'url'	=> 'game.php?page=fleet1'

@@ -55,12 +55,17 @@ class ShowFleetStep2Page extends AbstractGamePage
             ':targetPlanet' => $targetPlanet
         ));
 
-        if($targetType == 2 && $targetPlanetData['der_metal'] == 0 && $targetPlanetData['der_crystal'] == 0)
+        if($targetType == 2 && (empty($targetPlanetData) || ($targetPlanetData['der_metal'] == 0 && $targetPlanetData['der_crystal'] == 0)))
 		{
 			$this->printMessage($LNG['fl_error_empty_derbis'], array(array(
 				'label'	=> $LNG['sys_back'],
 				'url'	=> 'game.php?page=fleetTable'
 			)));
+		}
+
+		// Empty planet slots are valid colonization targets.
+		if (empty($targetPlanetData)) {
+			$targetPlanetData = array('id' => 0, 'id_owner' => 0, 'der_metal' => 0, 'der_crystal' => 0);
 		}
 			
 		$MisInfo		     		= array();		

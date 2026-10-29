@@ -47,6 +47,8 @@ page-breaking.
 | B031 | fixed | Admin / clearcache | Visiting `clearcache` (and every smoke run) deleted the tracked `cache/*/.gitkeep` files | `ClearCache()` removed every non-directory entry | Exclude `.gitkeep` from the cache clear |
 | B032 | fixed | Game / Senate | Governators were stuck at the 10% base; AP/DM prices used the old generic per-day values | `getFactors()` only added the base bonus and the old `UpdateExtra()` path had no level/AP model | Added achievements + AP, governator level columns, exact live AP/DM curves, `base + 1%/level` scaling and the `page=officier` governator panel |
 | B033 | fixed | Game / DB | New black market/collider queries matched nothing because `planet_type` is an `enum('1','3')` | Numeric comparisons such as `planet_type = 3` compare the enum index, not the string | Quote enum values (`planet_type = '3'`) in the Collider accrual and Planetarium queries |
+| B034 | fixed | Game / Fleet | Sending a fleet to an empty planet slot (colonization) or a missing moon/debris target logged PHP 8 warnings from `checkTarget()`; the warning output could corrupt the `OK` JSON and leave the Continue button stuck | `checkTarget()` read fields from a `false` DB row; Step 2/3 also handled missing target rows late | Guarded empty targets, return the proper no-moon/no-debris message, and normalize empty planet slots before mission checks |
+| B035 | fixed | Game / Fleet | `fleetStep3` showed `Undefined array key "ownPlanet"` and could reject a valid launch | Step 1 never stored the origin planet in the fleet session | Store `ownPlanet` when creating the token and fall back to the current planet in Step 3 |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

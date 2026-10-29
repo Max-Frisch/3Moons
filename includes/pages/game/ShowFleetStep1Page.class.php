@@ -80,6 +80,7 @@ class ShowFleetStep1Page extends AbstractGamePage
 			'time'		=> TIMESTAMP,
 			'fleet'		=> $Fleet,
 			'fleetRoom'	=> $FleetRoom,
+			'ownPlanet'	=> (int)$PLANET['id'],
 		);
 
 		$shortcutList	= $this->GetUserShotcut();
@@ -274,44 +275,48 @@ class ShowFleetStep1Page extends AbstractGamePage
                 ':targetType' => (($targetPlanetType == 2) ? 1 : $targetPlanetType),
             ));
 
-            if ($targetPlanetType == 3 && !isset($planetData))
+			if ($targetPlanetType == 3 && empty($planetData))
 			{
 				$this->sendJSON($LNG['fl_error_no_moon']);
 			}
 
-			if ($targetPlanetType != 2 && $planetData['urlaubs_modus'])
-			{
-				$this->sendJSON($LNG['fl_in_vacation_player']);
-			}
-
-			if ($planetData['id'] != $USER['id'] && Config::get()->adm_attack == 1 && $planetData['authattack'] > $USER['authlevel'])
-			{
-				$this->sendJSON($LNG['fl_admin_attack']);
-			}
-
-			if ($planetData['destruyed'] != 0)
-			{
-				$this->sendJSON($LNG['fl_error_not_avalible']);
-			}
-
-			if($targetPlanetType == 2 && $planetData['der_metal'] == 0 && $planetData['der_crystal'] == 0)
+			if ($targetPlanetType == 2 && (empty($planetData) || ($planetData['der_metal'] == 0 && $planetData['der_crystal'] == 0)))
 			{
 				$this->sendJSON($LNG['fl_error_empty_derbis']);
 			}
 
-			$sql	= 'SELECT (
-				(SELECT COUNT(*) FROM %%MULTI%% WHERE userID = :userID) +
-				(SELECT COUNT(*) FROM %%MULTI%% WHERE userID = :dataID)
-			) as count;';
-
-			$multiCount	= $db->selectSingle($sql ,array(
-				':userID' => $USER['id'],
-				':dataID' => $planetData['id']
-			), 'count');
-
-			if(ENABLE_MULTIALERT && $USER['id'] != $planetData['id'] && $USER['authlevel'] != AUTH_ADM && $USER['user_lastip'] == $planetData['user_lastip'] && $multiCount != 2)
+			// Empty planet slots are valid colonization targets: no owner checks.
+			if (!empty($planetData))
 			{
-				$this->sendJSON($LNG['fl_multi_alarm']);
+				if ($targetPlanetType != 2 && isset($planetData['urlaubs_modus']) && $planetData['urlaubs_modus'])
+				{
+					$this->sendJSON($LNG['fl_in_vacation_player']);
+				}
+
+				if ($planetData['id'] != $USER['id'] && Config::get()->adm_attack == 1 && $planetData['authattack'] > $USER['authlevel'])
+				{
+					$this->sendJSON($LNG['fl_admin_attack']);
+				}
+
+				if ($planetData['destruyed'] != 0)
+				{
+					$this->sendJSON($LNG['fl_error_not_avalible']);
+				}
+
+				$sql	= 'SELECT (
+					(SELECT COUNT(*) FROM %%MULTI%% WHERE userID = :userID) +
+					(SELECT COUNT(*) FROM %%MULTI%% WHERE userID = :dataID)
+				) as count;';
+
+				$multiCount	= $db->selectSingle($sql ,array(
+					':userID' => $USER['id'],
+					':dataID' => $planetData['id']
+				), 'count');
+
+				if(ENABLE_MULTIALERT && $USER['id'] != $planetData['id'] && $USER['authlevel'] != AUTH_ADM && $USER['user_lastip'] == $planetData['user_lastip'] && $multiCount != 2)
+				{
+					$this->sendJSON($LNG['fl_multi_alarm']);
+				}
 			}
 		}
 		else
