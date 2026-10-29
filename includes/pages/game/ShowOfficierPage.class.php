@@ -24,34 +24,6 @@ class ShowOfficierPage extends AbstractGamePage
 	{
 		parent::__construct();
 	}
-	
-	private function UpdateExtra($Element)
-	{
-		global $PLANET, $USER, $resource, $pricelist;
-		
-		$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element);
-			
-		if (!BuildFunctions::isElementBuyable($USER, $PLANET, $Element, $costResources)) {
-			return;
-		}
-			
-		$USER[$resource[$Element]]	= max($USER[$resource[$Element]], TIMESTAMP) + $pricelist[$Element]['time'];
-			
-		if(isset($costResources[901])) { $PLANET[$resource[901]]	-= $costResources[901]; }
-		if(isset($costResources[902])) { $PLANET[$resource[902]]	-= $costResources[902]; }
-		if(isset($costResources[903])) { $PLANET[$resource[903]]	-= $costResources[903]; }
-		if(isset($costResources[921])) { $USER[$resource[921]]		-= $costResources[921]; }
-
-		$sql	= 'UPDATE %%USERS%% SET
-				'.$resource[$Element].' = :newTime
-				WHERE
-				id = :userId;';
-
-		Database::get()->update($sql, array(
-			':newTime'	=> $USER[$resource[$Element]],
-			':userId'	=> $USER['id']
-		));
-	}
 
 	private function UpdateOfficier($Element)
 	{
@@ -82,45 +54,121 @@ class ShowOfficierPage extends AbstractGamePage
 			':userId'	=> $USER['id']
 		));
 	}
+
+	private function UpdateGovernator($action, $Element)
+	{
+		global $USER, $resource;
+
+		$governators	= Achievements::getGovernators();
+		if(!isset($governators[$Element])) {
+			return;
+		}
+
+		$level	= Achievements::getGovernatorLevel($USER, $Element);
+		$max	= $governators[$Element]['max'];
+
+		if($action === 'improve') {
+			if($level >= $max) {
+				return;
+			}
+
+			$cost	= Achievements::governatorAPCost($Element, $level);
+			if($USER['achievement_points'] < $cost) {
+				return;
+			}
+
+			$column	= 'gov_level_'.$Element;
+			Database::get()->update('UPDATE %%USERS%% SET
+				`'.$column.'` = `'.$column.'` + 1,
+				achievement_points = achievement_points - :cost,
+				achievement_points_spent = achievement_points_spent + :cost
+				WHERE id = :userId;', array(
+				':cost'		=> $cost,
+				':userId'	=> $USER['id'],
+			));
+
+			$USER[$column]					= $level + 1;
+			$USER['achievement_points']		-= $cost;
+			$USER['achievement_points_spent'] += $cost;
+			return;
+		}
+
+		if($action === 'hire') {
+			$days		= max(1, min(7, (int)HTTP::_GP('days', 1)));
+			$priceDay	= Achievements::governatorDMPrice($Element, $level);
+			$cost		= $priceDay * $days;
+
+			if($USER['darkmatter'] < $cost) {
+				return;
+			}
+
+			$column		= $resource[$Element];
+			$activeTill	= max((int)$USER[$column], TIMESTAMP);
+			$newTime	= $activeTill + $days * 86400;
+
+			Database::get()->update('UPDATE %%USERS%% SET
+				`'.$column.'` = :newTime,
+				darkmatter = darkmatter - :cost
+				WHERE id = :userId;', array(
+				':newTime'	=> $newTime,
+				':cost'		=> $cost,
+				':userId'	=> $USER['id'],
+			));
+
+			$USER[$column]		= $newTime;
+			$USER['darkmatter']	-= $cost;
+		}
+	}
 	
 	public function show()
 	{
 		global $USER, $PLANET, $resource, $reslist, $LNG, $pricelist;
 		
 		$updateID	  = HTTP::_GP('id', 0);
+		$action		  = HTTP::_GP('action', '');
+		$governators  = Achievements::getGovernators();
 				
 		if (!empty($updateID) && $_SERVER['REQUEST_METHOD'] === 'POST' && $USER['urlaubs_modus'] == 0)
 		{
-			if(isModuleAvailable(MODULE_OFFICIER) && in_array($updateID, $reslist['officier'])) {
+			if(isModuleAvailable(MODULE_DMEXTRAS) && isset($governators[$updateID]))
+			{
+				$this->UpdateGovernator($action, $updateID);
+			}
+			elseif(isModuleAvailable(MODULE_OFFICIER) && in_array($updateID, $reslist['officier'])) {
 				$this->UpdateOfficier($updateID);
-			} elseif(isModuleAvailable(MODULE_DMEXTRAS) && in_array($updateID, $reslist['dmfunc'])) {
-				$this->UpdateExtra($updateID);
 			}
 		}
 		
-		$darkmatterList	= array();
+		$governatorList	= array();
 		$officierList	= array();
 		
 		if(isModuleAvailable(MODULE_DMEXTRAS))
 		{
-			foreach($reslist['dmfunc'] as $Element)
+			foreach(Achievements::getGovernators() as $Element => $Governator)
 			{
-				if($USER[$resource[$Element]] > TIMESTAMP) {
-					$this->tplObj->execscript("GetOfficerTime(".$Element.", ".($USER[$resource[$Element]] - TIMESTAMP).");");
-				}
-			
-				$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element);
-				$buyable			= BuildFunctions::isElementBuyable($USER, $PLANET, $Element, $costResources);
-				$costOverflow		= BuildFunctions::getRestPrice($USER, $PLANET, $Element, $costResources);
-				$elementBonus		= BuildFunctions::getAvalibleBonus($Element);
+				$level		= Achievements::getGovernatorLevel($USER, $Element);
+				$timeLeft	= max((int)$USER[$resource[$Element]] - TIMESTAMP, 0);
+				$apCost		= Achievements::governatorAPCost($Element, $level);
+				$dmPerDay	= Achievements::governatorDMPrice($Element, $level);
+				$bonus		= array();
 
-				$darkmatterList[$Element]	= array(
-					'timeLeft'			=> max($USER[$resource[$Element]] - TIMESTAMP, 0),
-					'costResources'		=> $costResources,
-					'buyable'			=> $buyable,
-					'time'				=> $pricelist[$Element]['time'],
-					'costOverflow'		=> $costOverflow,
-					'elementBonus'		=> $elementBonus,
+				foreach(Achievements::governatorBonus($Element, $level) as $BonusName => $BonusPct)
+				{
+					$bonus[] = array(
+						'name'	=> $LNG['bonus'][$BonusName],
+						'pct'	=> $BonusPct,
+					);
+				}
+
+				$governatorList[$Element]	= array(
+					'level'			=> $level,
+					'maxLevel'		=> $Governator['max'],
+					'apCost'		=> $apCost,
+					'apBuyable'		=> $level < $Governator['max'] && $USER['achievement_points'] >= $apCost,
+					'dmPerDay'		=> $dmPerDay,
+					'dmBuyable'		=> $USER['darkmatter'] >= $dmPerDay,
+					'timeLeft'		=> $timeLeft,
+					'bonus'			=> $bonus,
 				);
 			}
 		}
@@ -149,8 +197,10 @@ class ShowOfficierPage extends AbstractGamePage
 		}
 		
 		$this->assign(array(
+			'governatorList'	=> $governatorList,
 			'officierList'		=> $officierList,
-			'darkmatterList'	=> $darkmatterList,
+			'achievementPoints'	=> pretty_number($USER['achievement_points']),
+			'achievementPointsSpent' => pretty_number($USER['achievement_points_spent']),
 			'of_dm_trade'		=> sprintf($LNG['of_dm_trade'], $LNG['tech'][921]),
 		));
 		

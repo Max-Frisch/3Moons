@@ -123,6 +123,7 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 
 	require 'includes/vars.php';
 	require 'includes/classes/class.BuildFunctions.php';
+	require 'includes/classes/class.Achievements.php';
 	require 'includes/classes/class.PlanetRessUpdate.php';
 	
 	if(!AJAX_REQUEST && MODE === 'INGAME' && isModuleAvailable(MODULE_FLEET_EVENTS)) {
@@ -195,6 +196,10 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 		
 		$USER['factor']		= getFactors($USER);
 		$USER['PLANETS']	= getPlanets($USER);
+
+		if($USER['urlaubs_modus'] == 0) {
+			Achievements::evaluate($USER);
+		}
 	}
 	elseif (MODE === 'ADMIN')
 	{

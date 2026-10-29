@@ -9,6 +9,7 @@
 		{if isModuleAvailable($smarty.const.MODULE_SHIPYARD_FLEET)}<a href="game.php?page=shipyard&amp;mode=fleet">{$LNG.lm_shipshard}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_SHIPYARD_DEFENSIVE)}<a href="game.php?page=shipyard&amp;mode=defense">{$LNG.lm_defenses}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_OFFICIER) || isModuleAvailable($smarty.const.MODULE_DMEXTRAS)}<a href="game.php?page=officier">{$LNG.lm_officiers}</a>{/if}
+		<a href="game.php?page=achievements">{$LNG.lm_achievements}</a>
 		{if isModuleAvailable($smarty.const.MODULE_FLEET_TRADER)}<a href="game.php?page=fleetDealer">{$LNG.lm_fleettrader}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_TRADER)}<a href="game.php?page=fleetTable">{$LNG.lm_fleet}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_RESSOURCE_LIST)}<a href="game.php?page=resources">{$LNG.lm_resources}</a>{/if}

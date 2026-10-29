@@ -32,6 +32,7 @@ $page		= str_replace(array('_', '\\', '/', '.', "\0"), '', $page);
 $pageAliases = array(
 	'officer'	=> 'officier',
 	'officers'	=> 'officier',
+	'achievement'	=> 'achievements',
 );
 if (isset($pageAliases[$page])) {
 	$page = $pageAliases[$page];

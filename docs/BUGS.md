@@ -44,6 +44,7 @@ is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
 | B029 | fixed | Admin / globalmessage | Sending a global PM 503s with `Class "HTML_BBCodeParser2" not found` | Only `game.php` preloaded the BBCode parser | `BBCode::parse()` now self-loads the parser |
 | B030 | fixed | Admin / accounteditor | POST with an unknown planet/user id 503s; resources log read `$before_dm['universe']` for a planet edit | Unguarded DB rows; wrong universe source | Guard every edited-row fetch and use the planet row's universe |
 | B031 | fixed | Admin / clearcache | Visiting `clearcache` (and every smoke run) deleted the tracked `cache/*/.gitkeep` files | `ClearCache()` removed every non-directory entry | Exclude `.gitkeep` from the cache clear |
+| B032 | fixed | Game / Senate | Governators were stuck at the 10% base; AP/DM prices used the old generic per-day values | `getFactors()` only added the base bonus and the old `UpdateExtra()` path had no level/AP model | Added achievements + AP, governator level columns, exact live AP/DM curves, `base + 1%/level` scaling and the `page=officier` governator panel |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

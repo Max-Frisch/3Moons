@@ -38,10 +38,14 @@ function getFactors($USER, $Type = 'basic', $TIME = NULL) {
 			if(DMExtra($elementLevel, $TIME, false, true)) {
 				continue;
 			}
-			
+
+			$level	= Achievements::getGovernatorLevel($USER, $elementID);
+
 			foreach($bonusList as $bonusKey)
 			{
-				$factor[$bonusKey]	+= $bonus[$bonusKey][0];
+				$baseBonus	= (float) $bonus[$bonusKey][0];
+				$perLevel	= 0.01 * ($baseBonus < 0 ? -1 : 1);
+				$factor[$bonusKey]	+= $baseBonus + $level * $perLevel;
 			}
 		} else {
 			foreach($bonusList as $bonusKey)

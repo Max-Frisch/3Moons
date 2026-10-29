@@ -89,3 +89,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 includes/ENABLE_INSTALL_TOOL
+
+HumanAIShare/

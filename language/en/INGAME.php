@@ -78,6 +78,7 @@ $LNG['lm_shipshard']						= 'Hangar';
 $LNG['lm_defenses']							= 'Defenses';
 $LNG['lm_resources']						= 'Resources';
 $LNG['lm_officiers']						= 'Officers';
+$LNG['lm_achievements']						= 'Achievements';
 $LNG['lm_trader']							= 'Market';
 $LNG['lm_fleettrader']						= 'Merchant of Fleets';
 $LNG['lm_technology']						= 'Technologies';
@@ -454,6 +455,55 @@ $LNG['of_lvl']								= 'Level';
 $LNG['of_dm_trade']							= '%s - Shop';
 $LNG['of_still']							= 'Continua';
 $LNG['of_active']							= 'active';
+$LNG['of_governators']						= 'Governators';
+$LNG['of_darkmatter']						= 'Dark Matter';
+
+//----------------------------------------------------------------------------//
+// Achievements
+
+$LNG['ach_points']							= 'Achievement Points';
+$LNG['ach_antimatter']						= 'Antimatter';
+$LNG['ach_level']							= 'lvl.';
+$LNG['ach_requirements']					= 'Requirements:';
+$LNG['ach_current']							= 'Current progress';
+$LNG['ach_next_bonus']						= 'Bonus at the next level:';
+$LNG['ach_empty']							= 'No achievements in this group.';
+$LNG['ach_group_all']						= 'General';
+$LNG['ach_group_daily']						= 'Daily';
+$LNG['ach_group_build']						= 'Buildings';
+$LNG['ach_group_tech']						= 'Research';
+$LNG['ach_group_fleet']						= 'Fleet';
+$LNG['ach_group_def']						= 'Defense';
+$LNG['ach_group_varia']						= 'Miscellaneous';
+$LNG['ach_req_level']						= '%s %s lvl.';
+$LNG['ach_req_unit']						= '%s %s units.';
+$LNG['ach_req_peaceful']					= 'Peace level %s .';
+$LNG['ach_req_veteran']						= 'Battle level %s .';
+$LNG['ach_req_raider']						= 'Winned %s battles.';
+$LNG['ach_req_victory_hostal_day']			= 'Winned %s battles in Hostal sector.';
+$LNG['ach_req_successful_expo_day']			= '%s successful flights in expedition.';
+$LNG['ach_req_fighter']						= 'Winned %s battles.';
+$LNG['ach_req_moon_destroyer']				= 'Destroyed %s moons.';
+$LNG['ach_req_moon_maker']					= 'Creater %s moons.';
+$LNG['ach_req_victory_hostal']				= 'Winned %s battles in Hostal sector.';
+$LNG['ach_req_successful_expo']				= '%s successful flights in expedition.';
+$LNG['ach_req_dark_matter_finder']			= 'Found %s Dark Matter.';
+$LNG['ach_req_upgrade_finder']				= 'Found %s Upgrades.';
+$LNG['ach_req_upgrade_engineer']			= 'Activised %s Upgrades.';
+$LNG['ach_desc_peaceful']					= 'The reward will come out for the achievement of each 5 peace levels';
+$LNG['ach_desc_veteran']					= 'The reward will come out for the achievement of each 5 battle levels';
+$LNG['ach_desc_raider']						= 'To achieve need to win 15 battles against the player.';
+$LNG['ach_desc_victory_hostal']				= 'To achieve need to win 20 battles in Hostal sector.';
+$LNG['ach_desc_daily_expo']					= 'To achieve need 20 successful flight in the expedition.';
+$LNG['ach_msg_sender']						= 'System';
+$LNG['ach_msg_subject']						= 'Achievement reached';
+$LNG['ach_msg_body']						= 'Reached: %s %s level. Received: %s Antimatter and %s Achievement Points';
+$LNG['ach_msg_body_multi']					= 'Reached: %s levels %s. Received: %s Antimatter and %s Achievement Points';
+$LNG['ach_improve']							= 'To improve the level';
+$LNG['ach_governor_ap']						= 'Achievement points:';
+$LNG['ach_governor_days']					= 'Days:';
+$LNG['ach_governor_hire']					= 'Hire';
+$LNG['ach_governor_active']					= 'Governor activated';
 
 //----------------------------------------------------------------------------//
 // Mercado
