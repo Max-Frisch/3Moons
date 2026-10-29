@@ -171,5 +171,5 @@ P6 black market/planetarium/collider, P7 catalog parity.
 
 ## Git
 
-- Remote configured; P2 commit pushed to `origin/main`. P3 Academy is ready to
-  commit/push.
+- Remote configured; P2 and P3 commits pushed to `origin/main`
+  (`24c8190` Academy, `58bd0be` phase docs).
