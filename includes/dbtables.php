@@ -15,7 +15,7 @@
  * @link https://github.com/jkroepke/2Moons
  */
 
-define('DB_VERSION_REQUIRED', 7);
+define('DB_VERSION_REQUIRED', 8);
 define('DB_NAME'			, $database['databasename']);
 define('DB_PREFIX'			, $database['tableprefix']);
 
@@ -27,6 +27,7 @@ $dbTableNames	= array(
 	'UPGRADE_ITEMS'		=> DB_PREFIX.'upgrade_items',
 	'MARKET_LOTS'		=> DB_PREFIX.'market_lots',
 	'MARKET_PURCHASES'	=> DB_PREFIX.'market_purchases',
+	'PREMIUM'			=> DB_PREFIX.'premium_bonuses',
 	'AKS'				=> DB_PREFIX.'aks',
 	'ALLIANCE'			=> DB_PREFIX.'alliance',
 	'ALLIANCE_RANK'		=> DB_PREFIX.'alliance_ranks',

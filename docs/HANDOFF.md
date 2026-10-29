@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **7** (`install/migrations/migration_7.sql`).
+- DB schema is now revision **8** (`install/migrations/migration_8.sql`).
 
 ## Completed this session
 
@@ -92,12 +92,52 @@
   - Added `tests/arsenal_math.php` (48 checks) for catalog, tiers, drop pools,
     activation chances and per-unit class bonus aggregation.
 
+- P5 Progression:
+  - Added `includes/classes/class.Progression.php`: peaceful online-time curve
+    (`37n^2 - 57.3n + 4076`), step bonuses (mines/research/energy +1%/level,
+    fleet slots /10, planet fields /5, moon fields /12, factories 10/25/50) and
+    the Online Bonus payout (DM `7000 + 630*level`, 10% peaceful progress,
+    Academy points along the captured `(3,1)..(77,8.5)` line).
+  - Added battle level/combat XP: `round(10700 * 1.07^level)` thresholds
+    (fitted exactly to the live level tooltips) and `defender destroyed value /
+    635,000,000` combat XP (captures split into this base and a 2.5x event
+    group). XP is awarded on wins in attacks, moon destruction and expedition
+    combat, and the report message appends "Received N combat experience".
+  - Online time accrues per ingame request (15s minimum gap, 300s cap) and the
+    peaceful/battle levels now feed `General`/`Veteran` achievements. Overview
+    shows both levels.
+  - Added `page=bonus` and `page=premium`. The premium catalog, pblist growth
+    factors and `premium.js` cost/duration-discount formula are captured
+    verbatim; purchases are stored in `premium_bonuses` and timed.
+  - Wired premium resource/storage bonuses, build+research speed, queue slots,
+    peaceful XP, combat XP, Bonus-button payout/cooldown and fuel reduction.
+    Expedition/moon/collider/conveyor/alliance-bank entries are purchasable and
+    stored for P6-P8.
+  - New accounts receive the captured 24h premium start: +1000% resources,
+    +100% build/research speed, +5 queue slots and +100% peaceful experience.
+  - Added migration 8 (`peaceful_seconds`, `peaceful_seen_at`, `combat_xp`,
+    `bonus_button_ready_at`, `bonus_last_click_at`, `premium_bonuses`).
+  - Added `tests/progression_math.php` (63 checks) for curve anchors, battle
+    thresholds, combat XP, bonus payout and the premium cost model.
+
 ## Manual verification done
 
 - `ADMIN=1 tools/smoke.sh`: 98/98 pass.
 - `docker compose exec -T web php tests/achievements_math.php`: 14/14 pass.
 - `docker compose exec -T web php tests/academy_math.php`: 55/55 pass.
 - `docker compose exec -T web php tests/arsenal_math.php`: 48/48 pass.
+- `docker compose exec -T web php tests/progression_math.php`: 63/63 pass.
+- `ADMIN=1 tools/smoke.sh`: 100/100 pass (adds bonus + premium).
+- Online Bonus claim: admin level 0 paid 7,000 DM + 1 Academy point and added
+  424 peaceful seconds; the cooldown was written.
+- Premium purchase: 1% storage for 1 day cost 1 Antimatter, wrote the row and
+  showed as active; test row refunded afterwards.
+- New-account premium grant inserted the four captured 24h rows
+  (res 1000, build speed 100, queue 5, peaceful XP 100).
+- Combat XP: 500b defender losses awarded 787 XP; `combat_xp=10700` showed
+  combat level 1, and the Veteran achievement reported current progress 1.
+- Premium factor wiring: resource +10.0, build/research -0.5 time factor,
+  queue +5, fuel -10%, combat XP +55%, Bonus button x4.
 - Arsenal activation: two light-armour activations reached level 2 / +1.2%,
   consumed both drawings and wrote `arsenal_activated = 2`.
 - Market: listed 1 laser drawing at 700 Antimatter (seller inventory dropped),
@@ -171,15 +211,15 @@
 
 ## Start here next session
 
-**P5: Progression** - peaceful level curve, combat XP/battle level, Online
-Bonus (the main Academy-point source), premium page and the 24h new-account
-bonus. Peaceful/battle counters will also light up the General/Veteran
-achievements.
+**P6: Black market, Planetarium, Collider, Empire, Jumpgate** - merchant/DM
+build/vouchers, relocation/fields, moon collider, empire matrix and jumpgate
+parity. The Collider is the main DM source and should consume the premium
+`prem_prod_from_colly` value already stored by P5.
 
 B008 is still open and needs an exact page/SQL error.
 
-Then P6 black market/planetarium/collider, P7 catalog/combat parity (including
-conveyor buildings 71-73 and multi-weapon attack components).
+Then P7 catalog/combat parity (including conveyor buildings 71-73 and
+multi-weapon attack components), P8 reskin/reports.
 
 ## Operational gotchas
 
@@ -216,5 +256,5 @@ conveyor buildings 71-73 and multi-weapon attack components).
 
 ## Git
 
-- Remote configured; P2-P4 commits pushed to `origin/main`
-  (`24c8190` Academy, `58bd0be` phase docs, `6115eb3` Arsenal and Market).
+- Remote configured; P2-P5 commits pushed to `origin/main` (P5 commit added
+  after this handoff).

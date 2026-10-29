@@ -145,7 +145,11 @@ class ShowBuildingsPage extends AbstractGamePage
 
 		$config	= Config::get();
 
-		if ($config->max_elements_build != 0 && $ActualCount >= $config->max_elements_build)
+		$maxQueue = $config->max_elements_build;
+		if ($maxQueue != 0) {
+			$maxQueue += Progression::premiumQueueSlots($USER);
+		}
+		if ($maxQueue != 0 && $ActualCount >= $maxQueue)
 		{
 			return 'queuefull';
 		}
@@ -352,7 +356,11 @@ class ShowBuildingsPage extends AbstractGamePage
 		$queueData	 		= $this->getQueueData();
 		$Queue	 			= $queueData['queue'];
 		$QueueCount			= count($Queue);
-		$CanBuildElement 	= isVacationMode($USER) || $config->max_elements_build == 0 || $QueueCount < $config->max_elements_build;
+		$maxElementsBuild	= $config->max_elements_build;
+		if ($maxElementsBuild != 0) {
+			$maxElementsBuild += Progression::premiumQueueSlots($USER);
+		}
+		$CanBuildElement 	= isVacationMode($USER) || $maxElementsBuild == 0 || $QueueCount < $maxElementsBuild;
 		$CurrentMaxFields   = CalculateMaxPlanetFields($PLANET);
 		
 		$RoomIsOk 			= $PLANET['field_current'] < ($CurrentMaxFields - $QueueCount);

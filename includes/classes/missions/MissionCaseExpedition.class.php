@@ -360,8 +360,14 @@ HTML;
 				require_once 'includes/classes/missions/functions/calculateAttack.php';
 				$combatResult	= calculateAttack($fleetAttack, $fleetDefend, $config->Fleet_Cdr, $config->Defs_Cdr);
 
+				$combatXpAward	= 0;
 				if($combatResult['won'] === 'a')
 				{
+					$combatXpAward	= Progression::awardCombatXP(
+						$this->_fleet['fleet_owner'],
+						Progression::lostResources(isset($combatResult['unitLost']['defender']) ? $combatResult['unitLost']['defender'] : array())
+					);
+
 					$arsenalPoints	= 0;
 					foreach($fleetArray as $shipId => $shipAmount)
 					{
@@ -482,6 +488,10 @@ HTML;
 					$LNG['tech'][901], pretty_number($debris[901]),
 					$LNG['tech'][902], pretty_number($debris[902])
 				);
+
+				if ($combatXpAward > 0) {
+					$message .= '<br><br>'.sprintf($LNG['sys_combat_xp'], pretty_number($combatXpAward));
+				}
 				
 				PlayerUtil::sendMessage($this->_fleet['fleet_owner'], 0, $LNG['sys_mess_tower'], 3,
 					$LNG['sys_mess_attack_report'], $message, $this->_fleet['fleet_end_stay']);

@@ -15,6 +15,8 @@
  * @link https://github.com/jkroepke/2Moons
  */
 
+require_once __DIR__ . '/class.Progression.php';
+
 class PlayerUtil
 {
 	static public function cryptPassword($password)
@@ -172,6 +174,7 @@ class PlayerUtil
 		$db->insert($sql, $params);
 		
 		$userId		= $db->lastInsertId();
+		Progression::grantStartingPremium($userId);
 		$planetId	= self::createPlanet($galaxy, $system, $position, $universe, $userId, $name, true, $authlevel);
 				
 		$currentUserAmount		= $config->users_amount + 1;

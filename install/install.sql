@@ -804,6 +804,11 @@ CREATE TABLE `%PREFIX%users` (
   `gov_level_707` smallint(5) unsigned NOT NULL DEFAULT '0',
   `arsenal_found` int(11) unsigned NOT NULL DEFAULT '0',
   `arsenal_activated` int(11) unsigned NOT NULL DEFAULT '0',
+  `peaceful_seconds` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `peaceful_seen_at` int(11) unsigned NOT NULL DEFAULT '0',
+  `combat_xp` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `bonus_button_ready_at` int(11) unsigned NOT NULL DEFAULT '0',
+  `bonus_last_click_at` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `authlevel` (`authlevel`),
   KEY `ref_bonus` (`ref_bonus`),
@@ -867,6 +872,15 @@ CREATE TABLE `%PREFIX%market_purchases` (
   PRIMARY KEY (`id`),
   KEY `buyer_id` (`buyer_id`),
   KEY `seller_id` (`seller_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `%PREFIX%premium_bonuses` (
+  `userID` int(11) unsigned NOT NULL,
+  `item` varchar(32) NOT NULL,
+  `value` double NOT NULL DEFAULT '0',
+  `expires_at` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`userID`,`item`),
+  KEY `expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

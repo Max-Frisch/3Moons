@@ -63,6 +63,8 @@ function getFactors($USER, $Type = 'basic', $TIME = NULL) {
 	$factor['ArsenalCrystal']	= $arsenal['crystal'];
 	$factor['ArsenalDeuterium']	= $arsenal['deuterium'];
 
+	$factor	= Progression::applyFactors($USER, $factor);
+
 	return $factor;
 }
 
@@ -196,8 +198,14 @@ function message($mes, $dest = "", $time = "3", $topnav = false)
 
 function CalculateMaxPlanetFields($planet)
 {
-	global $resource;
-	return $planet['field_max'] + ($planet[$resource[33]] * FIELDS_BY_TERRAFORMER) + ($planet[$resource[41]] * FIELDS_BY_MOONBASIS_LEVEL);
+	global $resource, $USER;
+
+	$peaceful = 0;
+	if (isset($USER) && is_array($USER) && isset($planet['id_owner']) && (int)$planet['id_owner'] === (int)$USER['id']) {
+		$peaceful = Progression::fieldsBonus($USER, isset($planet['planet_type']) ? $planet['planet_type'] : 1);
+	}
+
+	return $planet['field_max'] + ($planet[$resource[33]] * FIELDS_BY_TERRAFORMER) + ($planet[$resource[41]] * FIELDS_BY_MOONBASIS_LEVEL) + $peaceful;
 }
 
 function pretty_time($seconds)

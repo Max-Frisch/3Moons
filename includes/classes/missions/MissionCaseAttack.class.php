@@ -415,6 +415,19 @@ HTML;
 				break;
 		}
 		
+		$combatXpAward	= array();
+		$defenderLoss	= Progression::lostResources(isset($combatResult['unitLost']['defender']) ? $combatResult['unitLost']['defender'] : array());
+		$attackerLoss	= Progression::lostResources(isset($combatResult['unitLost']['attacker']) ? $combatResult['unitLost']['attacker'] : array());
+		if ($combatResult['won'] === 'a') {
+			foreach ($userAttack as $userID => $userName) {
+				$combatXpAward[$userID] = Progression::awardCombatXP($userID, $defenderLoss);
+			}
+		} elseif ($combatResult['won'] === 'r') {
+			foreach ($userDefend as $userID => $userName) {
+				$combatXpAward[$userID] = Progression::awardCombatXP($userID, $attackerLoss);
+			}
+		}
+
 		$reportID	= md5(uniqid('', true).TIMESTAMP);
 		
 		$sql	= 'INSERT INTO %%RW%% SET
@@ -471,6 +484,10 @@ HTML;
 					$LNG['tech'][902],
 					pretty_number($debris[902])
 				);
+
+				if (!empty($combatXpAward[$userID])) {
+					$message .= '<br><br>'.sprintf($LNG['sys_combat_xp'], pretty_number($combatXpAward[$userID]));
+				}
 
 				PlayerUtil::sendMessage($userID, 0, $LNG['sys_mess_tower'], 3, $LNG['sys_mess_attack_report'],
 					$message, $this->_fleet['fleet_start_time'], NULL, 1, $this->_fleet['fleet_universe']);

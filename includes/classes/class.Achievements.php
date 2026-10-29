@@ -251,8 +251,8 @@ class Achievements
             }
         }
 
-        $stats['peace_level'] = 0;
-        $stats['battle_level'] = 0;
+        $stats['peace_level'] = isset($USER['peace_level']) ? (float)$USER['peace_level'] : 0;
+        $stats['battle_level'] = isset($USER['battle_level']) ? (float)$USER['battle_level'] : 0;
         $stats['wons'] = isset($USER['wons']) ? (float)$USER['wons'] : 0;
         $stats['hostal_wins'] = 0;
         $stats['daily_expo'] = 0;

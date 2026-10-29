@@ -233,7 +233,11 @@ class ShowResearchPage extends AbstractGamePage
 			$ActualCount   	= 0;
 		}
 				
-		if(Config::get()->max_elements_tech != 0 && Config::get()->max_elements_tech <= $ActualCount)
+		$maxTechQueue = Config::get()->max_elements_tech;
+		if ($maxTechQueue != 0) {
+			$maxTechQueue += Progression::premiumQueueSlots($USER);
+		}
+		if($maxTechQueue != 0 && $maxTechQueue <= $ActualCount)
 		{
 			return 'queuefull';
 		}
@@ -482,7 +486,7 @@ class ShowResearchPage extends AbstractGamePage
 		$this->assign(array(
 			'ResearchList'	=> $ResearchList,
 			'IsLabinBuild'	=> !$bContinue,
-			'IsFullQueue'	=> Config::get()->max_elements_tech == 0 || Config::get()->max_elements_tech == count($TechQueue),
+			'IsFullQueue'	=> Config::get()->max_elements_tech == 0 || (Config::get()->max_elements_tech + Progression::premiumQueueSlots($USER)) <= count($TechQueue),
 			'Queue'			=> $TechQueue,
 			'QueueNotice'	=> $QueueNotice,
 		));

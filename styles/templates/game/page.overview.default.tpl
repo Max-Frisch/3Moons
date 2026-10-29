@@ -56,6 +56,14 @@
 							<td class="desc">{$LNG.ov_points}</td>
 							<td class="data">{$rankInfo}</td>
 						</tr>
+						<tr>
+							<td class="desc">{$LNG.ov_peaceful_level}</td>
+							<td class="data"><a href="game.php?page=bonus">{$peacefulLevel}</a> ({$peacefulProgress}%) &nbsp; {$LNG.pr_bonus_next} {$peacefulNext}</td>
+						</tr>
+						<tr>
+							<td class="desc">{$LNG.ov_battle_level}</td>
+							<td class="data">{$battleLevel} ({$battleProgress}%)</td>
+						</tr>
 					</tbody>
 				</table>
 			</div>

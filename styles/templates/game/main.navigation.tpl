@@ -13,6 +13,8 @@
 		<a href="game.php?page=academy">{$LNG.lm_academy}</a>
 		<a href="game.php?page=arsenal">{$LNG.lm_arsenal}</a>
 		<a href="game.php?page=market">{$LNG.lm_market}</a>
+		<a href="game.php?page=bonus">{$LNG.lm_bonus}</a>
+		<a href="game.php?page=premium">{$LNG.lm_premium}</a>
 		{if isModuleAvailable($smarty.const.MODULE_FLEET_TRADER)}<a href="game.php?page=fleetDealer">{$LNG.lm_fleettrader}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_TRADER)}<a href="game.php?page=fleetTable">{$LNG.lm_fleet}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_RESSOURCE_LIST)}<a href="game.php?page=resources">{$LNG.lm_resources}</a>{/if}

@@ -46,6 +46,8 @@ GAME_PAGES=(
   "upgrades"
   "market"
   "auction"
+  "bonus"
+  "premium"
   "achievements&group=daily"
   "achievements&group=build"
   "achievements&group=tech"

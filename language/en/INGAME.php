@@ -82,6 +82,8 @@ $LNG['lm_achievements']						= 'Achievements';
 $LNG['lm_academy']							= 'Academy';
 $LNG['lm_arsenal']							= 'Arsenal';
 $LNG['lm_market']							= 'Market';
+$LNG['lm_bonus']							= 'Online Bonus';
+$LNG['lm_premium']							= 'Premium';
 $LNG['lm_trader']							= 'Market';
 $LNG['lm_fleettrader']						= 'Merchant of Fleets';
 $LNG['lm_technology']						= 'Technologies';
@@ -1334,4 +1336,85 @@ $LNG['lo_notify']							= 'Will be redirected in <span id="seconds">5</span> sec
 $LNG['lo_continue']							= 'Click here not to wait';
 
 //----------------------------------------------------------------------------//
+
+//----------------------------------------------------------------------------//
+// Progression / Online Bonus / Premium
+$LNG['ov_peaceful_level']					= 'Peaceful level';
+$LNG['ov_battle_level']						= 'Combat level';
+$LNG['sys_combat_xp']						= 'Received %s combat experience';
+
+$LNG['pr_darkmatter']						= 'Dark Matter';
+$LNG['pr_experience']						= 'Experience';
+$LNG['pr_experience_points']				= 'Experience points';
+$LNG['pr_bonus_title']						= 'Online Bonus';
+$LNG['pr_bonus_desc']						= 'Time spent online raises your peaceful level, which grants account-wide bonuses. The bonus button can be claimed again after its cooldown.';
+$LNG['pr_bonus_level']						= 'Peaceful level';
+$LNG['pr_bonus_next']						= 'Next level in';
+$LNG['pr_bonus_reward']						= 'Bonus payout';
+$LNG['pr_bonus_cooldown']					= 'Button cooldown';
+$LNG['pr_bonus_ready']						= 'Claim bonus';
+$LNG['pr_bonus_wait']						= 'Available in %s';
+$LNG['pr_bonus_received']					= 'You received: Dark Matter: %s; Experience: %s%%; Experience points: %s.';
+$LNG['pr_bonus_not_ready']					= 'The bonus button is not ready yet.';
+$LNG['pr_bonus_bonuses']					= 'Current bonuses';
+$LNG['pr_bonus_premium']					= 'Active premium bonuses';
+$LNG['pr_bonus_multiplier']					= 'Button multiplier';
+$LNG['pr_bonus_mines']						= 'Mine extraction';
+$LNG['pr_bonus_studies']					= 'Research speed';
+$LNG['pr_bonus_energy']						= 'Energy production';
+$LNG['pr_bonus_fleet_slots']				= 'Fleet slots';
+$LNG['pr_bonus_fields_planet']				= 'Planet fields';
+$LNG['pr_bonus_fields_moon']				= 'Moon fields';
+$LNG['pr_bonus_factories']					= 'Factories (small / medium / large units per second)';
+
+$LNG['pr_premium_desc']						= 'Buy timed account bonuses with Antimatter. Prices use the live formula: base cost x amount x growth, with up to 50% duration discount.';
+$LNG['pr_premium_antimatter']				= 'Antimatter';
+$LNG['pr_premium_active']					= 'Active';
+$LNG['pr_premium_days']						= 'Days';
+$LNG['pr_premium_cost']						= 'Cost';
+$LNG['pr_premium_extend']					= 'Extend';
+$LNG['pr_premium_buy']						= 'Buy';
+$LNG['pr_premium_bought']					= 'Premium bonus extended by %d days for %s Antimatter.';
+$LNG['pr_premium_err_antimatter']			= 'Not enough Antimatter.';
+$LNG['pr_premium_err_days']					= 'Choose between 1 and 365 days.';
+$LNG['pr_premium_err_item']					= 'Unknown premium item.';
+
+$LNG['pr_prem_res']							= 'The rate of resource extraction';
+$LNG['pr_prem_res_desc']					= 'Increases the speed of mine production. It does not increase Collider production.';
+$LNG['pr_prem_storage']						= 'Storage capacity';
+$LNG['pr_prem_storage_desc']				= 'Increases storage capacity on planets and moons. It does not increase fleet cargo capacity.';
+$LNG['pr_prem_s_build']						= 'Construction and research speed';
+$LNG['pr_prem_s_build_desc']				= 'Increases building and research speed. 100% does not mean construction is instant.';
+$LNG['pr_prem_o_build']						= 'List of construction';
+$LNG['pr_prem_o_build_desc']				= 'Adds extra building and research queue slots.';
+$LNG['pr_prem_button']						= 'Button "Bonus"';
+$LNG['pr_prem_button_desc']					= 'Multiplies the Online Bonus payout.';
+$LNG['pr_prem_speed_button']				= 'Update of "Bonus" button';
+$LNG['pr_prem_speed_button_desc']			= 'Shortens the Online Bonus button cooldown.';
+$LNG['pr_prem_expedition']					= 'Bonus "Expedition"';
+$LNG['pr_prem_expedition_desc']				= 'Reserved for expedition reward wiring (P7).';
+$LNG['pr_prem_count_expiditeon']			= 'Amount of "Expeditions"';
+$LNG['pr_prem_count_expiditeon_desc']		= 'Reserved for the expedition slot increase (P7).';
+$LNG['pr_prem_speed_expiditeon']			= 'Expeditions speed';
+$LNG['pr_prem_speed_expiditeon_desc']		= 'Reserved for expedition flight time (P7).';
+$LNG['pr_prem_moon_dextruct']				= 'Protection of moon';
+$LNG['pr_prem_moon_dextruct_desc']			= 'Reserved for moon destruction protection (P7).';
+$LNG['pr_prem_leveling']					= 'Amount of earned experience';
+$LNG['pr_prem_leveling_desc']				= 'Increases peaceful experience, shortening the online time needed per level.';
+$LNG['pr_prem_batle_leveling']				= 'Getting combat experience';
+$LNG['pr_prem_batle_leveling_desc']			= 'Increases combat experience from battle reports.';
+$LNG['pr_prem_bank_ally']					= 'Alliance bank';
+$LNG['pr_prem_bank_ally_desc']				= 'Reserved for the alliance bank limit (P8).';
+$LNG['pr_prem_conveyors_l']					= 'Power of light conveyor';
+$LNG['pr_prem_conveyors_l_desc']			= 'Reserved for conveyor buildings 71-73 (P7).';
+$LNG['pr_prem_conveyors_s']					= 'Power of middle conveyor';
+$LNG['pr_prem_conveyors_s_desc']			= 'Reserved for conveyor buildings 71-73 (P7).';
+$LNG['pr_prem_conveyors_t']					= 'Power of heavy conveyor';
+$LNG['pr_prem_conveyors_t_desc']			= 'Reserved for conveyor buildings 71-73 (P7).';
+$LNG['pr_prem_prod_from_colly']				= 'Generation collider';
+$LNG['pr_prem_prod_from_colly_desc']		= 'Reserved for the moon Collider (P6).';
+$LNG['pr_prem_moon_creat']					= 'Moon creation';
+$LNG['pr_prem_moon_creat_desc']				= 'Reserved for the maximum moon creation chance (P7).';
+$LNG['pr_prem_fuel_consumption']			= 'Fuel consumption';
+$LNG['pr_prem_fuel_consumption_desc']		= 'Reduces fleet deuterium consumption.';
 

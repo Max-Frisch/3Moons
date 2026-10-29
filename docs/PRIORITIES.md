@@ -12,7 +12,7 @@ multi-day), not calendar estimates.
 | P2 | Senate: achievements, AP, governator scaling | High | M-L | Medium | P0 | DONE 2026-10-29. 47 achievements + `page=achievements`, AP/antimatter rewards + system messages, `users` AP/antimatter/gov-level columns, exact live governator AP/DM curves and `base + 1%/level` scaling. Daily/peaceful/battle/moon/expo/Arsenal progress sources remain for P4/P5; missing Niburu ids (conveyors, ships 221-228, defenses 412-419) remain for P7. |
 | P3 | Academy (34 skills, points, effects) | High | L | Medium | P2 | DONE 2026-10-29. Captured 34-node, 3-branch tree, point costs, prereqs, target-level upgrades, branch resets, `page=academy`, factor/fleet-cost/fuel/IRN wiring. Academy points come from achievements for now; Online Bonus/donation/peaceful sources land in P5. |
 | P4 | Arsenal and Market (19 upgrades, auction) | High | L | Medium | P0 | DONE 2026-10-29. 19-upgrade catalog, activation rules, expedition drops by fleet-point tier, `page=arsenal`, `page=market` auction (list/buy/remove/72h expiry), combat/production/engine wiring. Multi-weapon attack still uses the primary class and conveyors stay catalog-only until P7. |
-| P5 | Progression: peaceful level, combat XP, Bonus, Premium | High | M-L | Medium | P2 | Additive bonuses drive the Niburu feel; online bonus is the main Academy-point source. |
+| P5 | Progression: peaceful level, combat XP, Bonus, Premium | High | M-L | Medium | P2 | DONE 2026-10-29. Peaceful online curve + step bonuses, battle-level/combat XP, `page=bonus`, `page=premium` with captured pblist costs, 24h new-account premium, and exp/mine/build/queue/fuel wiring. Expedition/moon/collider/conveyor premium items are stored for P6-P8. |
 | P6 | Black market, Planetarium, Collider, Empire, Jumpgate | Medium | L | Medium | P0 | Merchant/DM build/vouchers, relocation/fields, moon collider, empire matrix, jumpgate parity. |
 | P7 | Data, combat and expedition parity | Very high | L | High | - | Catalog/techtree/units first (can run in parallel with features), then combat calibration and expedition tables. Combat parity is the hardest technical item. |
 | P8 | UI reskin + messages/reports parity | Medium | L | Low | P0 | Artwork already mirrored in neoxnova. |
@@ -25,7 +25,7 @@ multi-day), not calendar estimates.
 4. **P3 Academy** (done).
 5. **P4/P5**: Arsenal/market and progression - the remaining Niburu identity
    pieces.
-6. **P6**: black market, planetarium, collider/empire.
+6. **P6**: black market, planetarium, collider/empire (Collider should consume the stored `prem_prod_from_colly`).
 7. **P7-P8**: data/combat/expedition parity, interleaved with feature work,
    then reskin and report polish.
 
