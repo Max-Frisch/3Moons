@@ -350,7 +350,7 @@ function ClearCache()
 {
 	$DIRS	= array('cache/', 'cache/templates/');
 	foreach($DIRS as $DIR) {
-		$FILES = array_diff(scandir($DIR), array('..', '.', '.htaccess'));
+		$FILES = array_diff(scandir($DIR), array('..', '.', '.htaccess', '.gitkeep'));
 		foreach($FILES as $FILE) {
 			if(is_dir(ROOT_PATH.$DIR.$FILE))
 				continue;

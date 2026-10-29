@@ -47,6 +47,18 @@ GAME_PAGES=(
   "ticket"
   "chat"
   "imperium"
+  "fleetMissile"
+  "information"
+  "information&id=999999"
+  "playerCard&id=999999"
+  "notes&mode=detail&id=999999"
+  "buddyList&mode=request&id=999999"
+  "raport&mode=battlehall&raport=invalid"
+  "alliance&mode=info&id=999999"
+  "fleetTable&mode=createACS"
+  "officier&mode=UpdateOfficier"
+  "messages&mode=view&messcat=100"
+  "nonexistent"
 )
 
 ADMIN_PAGES=(
@@ -82,10 +94,19 @@ ADMIN_PAGES=(
   "universe"
   "multiips"
   "log"
+  "log&type=player"
+  "log&type=planet"
+  "log&type=settings"
+  "log&type=present"
+  "log&type=detail&id=999999"
   "vertify"
   "cronjob"
+  "cronjob&action=detail&id=999999"
+  "cronjob&action=edit&id=999999"
   "giveaway"
   "autocomplete"
+  "reset"
+  "dump"
 )
 
 ERROR_RE='Fatal error|Uncaught|Parse error|ParseError|Warning:|Deprecated:|SQLSTATE|Unknown column|doesn.t exist|USER ERROR'

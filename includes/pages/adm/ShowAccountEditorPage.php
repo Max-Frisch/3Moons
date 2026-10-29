@@ -41,7 +41,12 @@ function ShowAccountEditorPage()
 				if (!empty($id))
 					$before = $GLOBALS['DATABASE']->getFirstRow("SELECT `metal`,`crystal`,`deuterium`,`universe`  FROM ".PLANETS." WHERE `id` = '". $id ."';");
 				if (!empty($id_dark))
-					$before_dm = $GLOBALS['DATABASE']->getFirstRow("SELECT `darkmatter` FROM ".USERS." WHERE `id` = '". $id_dark ."';");
+					$before_dm = $GLOBALS['DATABASE']->getFirstRow("SELECT `darkmatter`,`universe` FROM ".USERS." WHERE `id` = '". $id_dark ."';");
+				if ((!empty($id) && empty($before)) || (!empty($id_dark) && empty($before_dm)))
+				{
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=resources');
+					exit;
+				}
 				if (!empty($_POST['add']))
 				{
 					if (!empty($id)) {
@@ -90,7 +95,7 @@ function ShowAccountEditorPage()
 				if (!empty($id)) {
 					$LOG = new Log(2);
 					$LOG->target = $id;
-					$LOG->universe = $before_dm['universe'];
+					$LOG->universe = $before['universe'];
 					$LOG->old = $before;
 					$LOG->new = $after;
 					$LOG->save();
@@ -120,6 +125,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$before1 = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".PLANETS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
+				if (empty($before1)) {
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=ships');
+					exit;
+				}
 				$before = array();
 				$after = array();
 				foreach($reslist['fleet'] as $ID)
@@ -189,6 +198,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$before1 = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".PLANETS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
+				if (empty($before1)) {
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=defenses');
+					exit;
+				}
 				$before = array();
 				$after = array();
 				foreach($reslist['defense'] as $ID)
@@ -257,9 +270,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$PlanetData = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".PLANETS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
-				if(!isset($PlanetData))
+				if(empty($PlanetData))
 				{
 					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=buildings');
+					exit;
 				}
 				$before = array();
 				$after = array();
@@ -339,6 +353,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$before1 = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".USERS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
+				if (empty($before1)) {
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=researchs');
+					exit;
+				}
 				$before = array();
 				$after = array();
 				foreach($reslist['tech'] as $ID)
@@ -411,6 +429,10 @@ function ShowAccountEditorPage()
 				$vacation	= HTTP::_GP('vacation', '');				
 				
 				$before = $GLOBALS['DATABASE']->getFirstRow("SELECT `username`,`email`,`email_2`,`password`,`urlaubs_modus`,`urlaubs_until` FROM ".USERS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
+				if (empty($before)) {
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=personal');
+					exit;
+				}
 				$after = array();
 				
 				$PersonalQuery    =    "UPDATE ".USERS." SET ";
@@ -472,6 +494,10 @@ function ShowAccountEditorPage()
 			if($_POST)
 			{
 				$before1 = $GLOBALS['DATABASE']->getFirstRow("SELECT * FROM ".USERS." WHERE `id` = '". HTTP::_GP('id', 0) ."';");
+				if (empty($before1)) {
+					$template->message($LNG['ad_add_not_exist'], '?page=accounteditor&edit=officiers');
+					exit;
+				}
 				$before = array();
 				$after = array();
 				foreach($reslist['officier'] as $ID)

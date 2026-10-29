@@ -43,6 +43,7 @@ class ShowAlliancePage extends AbstractGamePage
 	{
 		global $USER;
 		parent::__construct();
+		$this->rights		= array_combine($this->availableRanks, array_fill(0, count($this->availableRanks), false));
 		$this->hasAlliance	= $USER['ally_id'] != 0;
 		$this->hasApply		= $this->isApply();
 		if($this->hasAlliance && !$this->hasApply) {
@@ -107,7 +108,7 @@ class ShowAlliancePage extends AbstractGamePage
 
 		$this->setAllianceData($allianceId);
 
-		if(!isset($this->allianceData))
+		if(empty($this->allianceData))
 		{
 			$this->printMessage($LNG['al_not_exists']);
 		}
@@ -277,7 +278,7 @@ class ShowAlliancePage extends AbstractGamePage
 			':universe'     => Universe::current()
 		));
 
-		if (!isset($allianceResult)) {
+		if (empty($allianceResult)) {
 			$this->redirectToHome();
 		}
 
@@ -635,6 +636,10 @@ class ShowAlliancePage extends AbstractGamePage
 	{
 		global $USER;
 
+		if (!$this->hasAlliance || empty($this->allianceData)) {
+			$this->redirectToHome();
+		}
+
 		$db = Database::get();
 
 		$sql	= "UPDATE %%USERS%% SET ally_id = 0, ally_register_time = 0, ally_register_time = 5 WHERE id = :UserID;";
@@ -724,6 +729,10 @@ class ShowAlliancePage extends AbstractGamePage
 	public function admin()
 	{
 		global $LNG;
+
+		if (!$this->hasAlliance || empty($this->allianceData)) {
+			$this->redirectToHome();
+		}
 
 		$action		= HTTP::_GP('action', 'overview');
 		$methodName	= 'admin'.ucwords($action);

@@ -639,7 +639,7 @@ class PlayerUtil
 			':type'		=> $messageType,
 			':from'		=> $senderName,
 			':subject'	=> $subject,
-			':text'		=> utf8_encode($text),
+			':text'		=> mb_convert_encoding($text, 'UTF-8', 'ISO-8859-1'),
 			':unread'	=> $unread,
 			':universe'	=> $universe,
 		));

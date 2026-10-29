@@ -150,6 +150,8 @@ function ShowCronjobEnable($cronjobId) {
 
 function ShowCronjobOverview() 
 {
+	global $LNG;
+
 	$data    = $GLOBALS['DATABASE']->query("SELECT * FROM ".CRONJOBS.";");
 
 	$template	= new template();	
@@ -182,6 +184,8 @@ function ShowCronjobOverview()
 
 function ShowCronjobDetail($detail,$error_msg=NULL) 
 {
+	global $LNG;
+
 	$template	= new template();
 	
 	
@@ -201,6 +205,10 @@ function ShowCronjobDetail($detail,$error_msg=NULL)
 	if ($detail != 0)
 	{
 		$CronjobRow   	= $GLOBALS['DATABASE']->uniquequery("SELECT * FROM ".CRONJOBS." WHERE cronjobID = ".$detail."");
+		if (empty($CronjobRow)) {
+			$template->message($LNG['cronjob_no_data']);
+			return;
+		}
 		$template->assign_vars(array(	
 			'id'			=> $CronjobRow['cronjobID'],
 			'name'			=> isset($_POST['name'])?HTTP::_GP('name', ''):$CronjobRow['name'],

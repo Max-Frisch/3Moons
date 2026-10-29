@@ -62,6 +62,7 @@ class ShowNotesPage extends AbstractGamePage
 		global $LNG, $USER;
 
 		$noteID		= HTTP::_GP('id', 0);
+		$noteDetail	= false;
 		
 		if(!empty($noteID)) {
             $db = Database::get();
@@ -70,8 +71,10 @@ class ShowNotesPage extends AbstractGamePage
             $noteDetail = $db->selectSingle($sql, array(
                 ':userID'   => $USER['id'],
                 ':noteID'   => $noteID
-            ));
-		} else {
+			));
+		}
+
+		if (empty($noteDetail)) {
 			$noteDetail	= array(
 				'id'		=> 0,
 				'priority'	=> 1,

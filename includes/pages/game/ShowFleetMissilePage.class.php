@@ -73,18 +73,6 @@ class ShowFleetMissilePage extends AbstractGamePage
 		elseif ($anz <= 0)
 			$error = $LNG['ma_add_missile_number'];
 
-		$targetUser	   	= GetUserByID($target['id_owner'], array('onlinetime', 'banaday', 'urlaubs_modus', 'authattack'));
-		
-		if (Config::get()->adm_attack == 1 && $targetUser['authattack'] > $USER['authlevel'])
-			$error = $LNG['fl_admin_attack'];	
-		elseif($targetUser['urlaubs_modus'])
-			$error = $LNG['fl_in_vacation_player'];
-			
-		$sql = "SELECT total_points FROM %%STATPOINTS%% WHERE stat_type = '1' AND id_owner = :ownerId;";
-        $User2Points = $db->selectSingle($sql, array(
-            ':ownerId'  => $target['id_owner']
-        ));
-
 		$sql	= 'SELECT total_points
 		FROM %%STATPOINTS%%
 		WHERE id_owner = :userId AND stat_type = :statType';
@@ -94,12 +82,36 @@ class ShowFleetMissilePage extends AbstractGamePage
 			':statType'	=> 1
 		));
 
-        $IsNoobProtec	= CheckNoobProtec($USER, $User2Points, $targetUser);
-			
-		if ($IsNoobProtec['NoobPlayer'])
-			$error = $LNG['fl_week_player'];
-		elseif ($IsNoobProtec['StrongPlayer'])
-			$error = $LNG['fl_strong_player'];		
+		$targetUser		= array('onlinetime' => 0, 'banaday' => 0, 'urlaubs_modus' => 0, 'authattack' => 0);
+		$User2Points	= array('total_points' => 0);
+
+		if (!empty($target))
+		{
+			$targetUserFound = GetUserByID($target['id_owner'], array('onlinetime', 'banaday', 'urlaubs_modus', 'authattack'));
+			if (!empty($targetUserFound)) {
+				$targetUser = $targetUserFound;
+			}
+
+			if (Config::get()->adm_attack == 1 && $targetUser['authattack'] > $USER['authlevel'])
+				$error = $LNG['fl_admin_attack'];
+			elseif($targetUser['urlaubs_modus'])
+				$error = $LNG['fl_in_vacation_player'];
+
+			$sql = "SELECT total_points FROM %%STATPOINTS%% WHERE stat_type = '1' AND id_owner = :ownerId;";
+			$User2Points = $db->selectSingle($sql, array(
+				':ownerId'  => $target['id_owner']
+			));
+			if (empty($User2Points)) {
+				$User2Points = array('total_points' => 0);
+			}
+
+			$IsNoobProtec	= CheckNoobProtec($USER, $User2Points, $targetUser);
+
+			if ($IsNoobProtec['NoobPlayer'])
+				$error = $LNG['fl_week_player'];
+			elseif ($IsNoobProtec['StrongPlayer'])
+				$error = $LNG['fl_strong_player'];
+		}
 				
 		if ($error != "")
 		{

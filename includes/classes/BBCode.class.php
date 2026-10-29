@@ -22,6 +22,11 @@ class BBCode
 		if (!isset($sText)) {
 			$sText = '';
 		}
+
+		if (!class_exists('HTML_BBCodeParser2')) {
+			require_once dirname(__DIR__).'/libs/BBCodeParser2/HTML/BBCodeParser2.php';
+		}
+
 		$sText = str_replace("\r\n", "\n", $sText);
 		$sText = str_replace("\r", "\n", $sText);
 		$sText = str_replace("\n", '<br />', $sText);

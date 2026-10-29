@@ -56,6 +56,10 @@ class ShowBuddyListPage extends AbstractGamePage
             ':friendID'  => $id
         ));
 
+		if (empty($userData)) {
+			$this->printMessage($LNG['page_doesnt_exist'], NULL, NULL, false);
+		}
+
 		$this->assign(array(
 			'username'	=> $userData['username'],
 			'galaxy'	=> $userData['galaxy'],
@@ -191,6 +195,10 @@ class ShowBuddyListPage extends AbstractGamePage
             ':id'       => $id
         ));
 		
+		if (empty($sender)) {
+			$this->redirectTo('game.php?page=buddyList');
+		}
+
 		$Friend_LNG = $LNG;
 		
 		if($USER['lang'] != $sender['lang']){

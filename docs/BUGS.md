@@ -4,9 +4,10 @@ Status: `open`, `fixed`, `wontfix`, `needs-capture`.
 
 ## Current status (2026-10-29)
 
-`tools/smoke.sh` with `ADMIN=1`: **64/64 pages pass** (28 game + 36 admin).
-The P0 stabilization pass is complete. Remaining known work is feature-level
-(see `docs/PRIORITIES.md`), not page-breaking.
+`tools/smoke.sh` with `ADMIN=1`: **85/85 pages pass** (38 game + 47 admin).
+The P2 bug sweep is complete for the crawled game/admin GET surface, plus the
+admin global-message send and account-editor POST paths. Remaining known work
+is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
 
 ## Defects
 
@@ -19,7 +20,7 @@ The P0 stabilization pass is complete. Remaining known work is feature-level
 | B005 | fixed | Admin / messagelist | Undefined `$Selected` in compiled template | `ShowMessageListPage` did not assign it | Assigned `Selected => $type` |
 | B006 | fixed | Game / info | Warning on `page=information` / `playerCard` without `id` | No validation before array access | Friendly error via `printMessage()` |
 | B007 | fixed | Routing | `page=officer` 503; real page is `page=officier` | No alias | Added `officer` / `officers` aliases in `game.php` |
-| B008 | open | Admin / MySQL | Occasional MySQL errors on admin pages | Not reproduced in the smoke pass | Re-open with an exact page and SQL error |
+| B008 | open | Admin / MySQL | Occasional MySQL errors on admin pages | Not reproduced in the P0 or P2 sweeps | Re-open with an exact page and SQL error |
 | B009 | fixed | Admin / rights+universe | `$_GET['sid']` warning before exit | Raw superglobal | `HTTP::_GP('sid', '')` |
 | B010 | fixed | Game / research | Research page warning (screenshot) | Same as B001 | Same as B001 |
 | B011 | fixed | Admin / search | Undefined `$Searchmethod`; filter field named `fucki` | `SearchPage.tpl` variable/name mismatch | `$SearchMethod` + `name=fuki` |
@@ -28,6 +29,21 @@ The P0 stabilization pass is complete. Remaining known work is feature-level
 | B014 | fixed | Admin / bans+multiips | Undefined `$bo_select_title`, `$bo_order_id`, `$mip_ip` | Controllers did not assign language keys used by templates | Assigned them |
 | B015 | fixed | Runtime / cache | `session_start(): ... /cache/sessions/... No such file` | Clearing cache removed `cache/sessions` and `cache/templates` | Recreated them; `.gitkeep` files now keep them in the repo |
 | B016 | fixed | Game / research queue | Cancelling research 503s with `Undefined array key <techId>`; refund can use the wrong tech | `ShowResearchPage::CancelBuildingFromQueue()` used `$USER['b_tech_id']` and `$PLANET[$elementId]` (planet has no numeric tech keys) | Read the element/level from `$CurrentQueue[0]` and price with that level, matching the building queue. Also fixed the research `remove` time recompute (`getBuildingTime()` argument order) |
+| B017 | fixed | Game+login / error page | Any friendly error page 503s; `Trying to access array offset on value of type bool` in `error.default.tpl` | `ShowErrorPage::printError()` passed `$fullSide` as the `$redirectButtons` argument | Pass `printMessage($Message, NULL, $redirect, $fullSide)` in game and login; fixed the same arg-order bug in `information`/`playerCard` |
+| B018 | fixed | Game+login / board | `Undefined constant "FILTER_FLAG_SCHEME_REQUIRED"` | Flag removed in PHP 8; scheme is always required | Use `filter_var($url, FILTER_VALIDATE_URL)` |
+| B019 | fixed | Game / fleetMissile | Missing/invalid target 503s on bool offsets | Target and target user fetched without guarding | Guard `$target`/`$targetUser`, default points/user rows |
+| B020 | fixed | Game / alliance | `memberList`, `circular`, `admin`, `close` and invalid `info`/`apply` 503 on null alliance/rights | Rights only initialized for members; `isset()` is true for `false` DB rows | Initialize all rights to false; guard membership and `empty()` DB rows |
+| B021 | fixed | Game / notes | `notes&mode=detail&id=<missing>` 503s in the template | Controller passed `false` to the template | Fall back to the new-note defaults |
+| B022 | fixed | Game / buddyList | Invalid `request` / `accept` id 503s on false user rows | DB row used without checking | Show a friendly error / redirect back to the list |
+| B023 | fixed | Game / raport | `mode=battlehall` with an invalid id 503s | Arrays read before the `isset()` check | Check `empty($reportData)` before reading it |
+| B024 | fixed | Game / jumpgate | `sendFleet` continued with a missing target gate | `!isset($TargetGate)` is false for a `false` row | Use `empty()` |
+| B025 | fixed | Game / routing | `fleetTable&mode=createACS` and `officier&mode=Update*` 503 with ArgumentCountError | Internal methods with required args are router-reachable | Made fleet-table ACS helpers protected (default controller `show`); made officer updaters private |
+| B026 | fixed | Admin / log | `log&type=player`, `planet`, `settings`, `present` warnings; `type=detail` with bad id 503s | Missing `$USER` globals, uninitialized `$LogArray`, unguarded `unserialize()` | Added globals, defaults, and row/unserialize guards |
+| B027 | fixed | Admin / cronjob | `detail`/`edit` with a bad id 503s; overview can warn | No row guard; `$LNG` not imported | Guard the row and import `$LNG` |
+| B028 | fixed | Game / messages | PHP 8.2 `utf8_encode`/`utf8_decode` deprecations would 503 message read/write | Deprecated functions | Replaced with `mb_convert_encoding()` equivalents |
+| B029 | fixed | Admin / globalmessage | Sending a global PM 503s with `Class "HTML_BBCodeParser2" not found` | Only `game.php` preloaded the BBCode parser | `BBCode::parse()` now self-loads the parser |
+| B030 | fixed | Admin / accounteditor | POST with an unknown planet/user id 503s; resources log read `$before_dm['universe']` for a planet edit | Unguarded DB rows; wrong universe source | Guard every edited-row fetch and use the planet row's universe |
+| B031 | fixed | Admin / clearcache | Visiting `clearcache` (and every smoke run) deleted the tracked `cache/*/.gitkeep` files | `ClearCache()` removed every non-directory entry | Exclude `.gitkeep` from the cache clear |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

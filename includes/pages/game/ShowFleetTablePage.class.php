@@ -19,13 +19,14 @@
 class ShowFleetTablePage extends AbstractGamePage
 {
 	public static $requireModule = MODULE_FLEET_TABLE;
+	public static $defaultController = 'show';
 
 	function __construct() 
 	{
 		parent::__construct();
 	}
 	
-	public function createACS($fleetID, $fleetData) {
+	protected function createACS($fleetID, $fleetData) {
 		global $USER;
 		
 		$rand 			= mt_rand(100000, 999999999);
@@ -60,7 +61,7 @@ class ShowFleetTablePage extends AbstractGamePage
 		);
 	}
 	
-	public function loadACS($fleetData) {
+	protected function loadACS($fleetData) {
 		global $USER;
 		
 		$db = Database::get();
@@ -73,7 +74,7 @@ class ShowFleetTablePage extends AbstractGamePage
 		return $acsResult;
 	}
 	
-	public function getACSPageData($fleetID)
+	protected function getACSPageData($fleetID)
 	{
 		global $USER, $LNG;
 		

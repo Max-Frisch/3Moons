@@ -39,7 +39,7 @@ class ShowPlayerCardPage extends AbstractGamePage
 		$PlayerID 	= HTTP::_GP('id', 0);
 
 		if (empty($PlayerID)) {
-			$this->printMessage($LNG['page_doesnt_exist'], true, NULL, false);
+			$this->printMessage($LNG['page_doesnt_exist'], NULL, NULL, false);
 			return;
 		}
 
@@ -59,7 +59,7 @@ class ShowPlayerCardPage extends AbstractGamePage
 		));
 
 		if (empty($query)) {
-			$this->printMessage($LNG['page_doesnt_exist'], true, NULL, false);
+			$this->printMessage($LNG['page_doesnt_exist'], NULL, NULL, false);
 			return;
 		}
 

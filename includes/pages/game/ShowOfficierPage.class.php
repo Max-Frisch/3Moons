@@ -25,7 +25,7 @@ class ShowOfficierPage extends AbstractGamePage
 		parent::__construct();
 	}
 	
-	public function UpdateExtra($Element)
+	private function UpdateExtra($Element)
 	{
 		global $PLANET, $USER, $resource, $pricelist;
 		
@@ -53,7 +53,7 @@ class ShowOfficierPage extends AbstractGamePage
 		));
 	}
 
-	public function UpdateOfficier($Element)
+	private function UpdateOfficier($Element)
 	{
 		global $USER, $PLANET, $resource, $pricelist;
 		

@@ -56,7 +56,7 @@ class ShowInformationPage extends AbstractGamePage
 			':userID'   => $USER['id']
 		));
 
-		if (!isset($TargetGate) || $TargetPlanet == $PLANET['id'])
+		if (empty($TargetGate) || $TargetPlanet == $PLANET['id'])
 		{
 			$this->sendJSON(array(
 				'message' => $LNG['in_jump_gate_doesnt_have_one'],
@@ -205,7 +205,7 @@ class ShowInformationPage extends AbstractGamePage
 		$this->initTemplate();
 
 		if (empty($elementID) || !isset($pricelist[$elementID])) {
-			$this->printMessage($LNG['page_doesnt_exist'], true, NULL, false);
+			$this->printMessage($LNG['page_doesnt_exist'], NULL, NULL, false);
 			return;
 		}
 
