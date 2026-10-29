@@ -6,17 +6,13 @@
 		{$LNG.mg_overview}<span id="loading" style="display:none;"> ({$LNG.loading})</span>
 	</div>
 
-	<div>
-		<table style="width:100%;table-layout:fixed;">
-				{foreach $CategoryList as $CategoryID => $CategoryRow}
-				{if ($CategoryRow@iteration % 6) === 1}<tr>{/if}
-				{if $CategoryRow@last && ($CategoryRow@iteration % 6) !== 0}<td>&nbsp;</td>{/if}
-				<td style="word-wrap: break-word;color:{$CategoryRow.color};"><a href="#" onclick="Message.getMessages({$CategoryID});return false;" style="color:{$CategoryRow.color};">{$LNG.mg_type.{$CategoryID}}</a>
-				<br><span id="unread_{$CategoryID}">{$CategoryRow.unread}</span>/<span id="total_{$CategoryID}">{$CategoryRow.total}</span>
-				</td>
-				{if $CategoryRow@last || ($CategoryRow@iteration % 6) === 0}</tr>{/if}
-				{/foreach}
-		</table>
+	<div class="message-grid">
+		{foreach $CategoryList as $CategoryID => $CategoryRow}
+		<a href="#" class="message-card" style="border-left-color:{$CategoryRow.color};" onclick="Message.getMessages({$CategoryID});return false;">
+			<span class="message-card-title" style="color:{$CategoryRow.color};">{$LNG.mg_type.{$CategoryID}}</span>
+			<span class="message-card-count"><span id="unread_{$CategoryID}">{$CategoryRow.unread}</span>/<span id="total_{$CategoryID}">{$CategoryRow.total}</span></span>
+		</a>
+		{/foreach}
 	</div>
 
 	<div class="title" style="margin: 0 -5px 0 -5px;">

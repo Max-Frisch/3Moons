@@ -36,7 +36,7 @@
 		<td>{$LNG.mg_subject}</td>
 	</tr>
 	{foreach $MessageList as $Message}
-	<tr id="message_{$Message.id}" class="title message_head{if $MessID != 999 && $Message.unread == 1} mes_unread{/if}">
+	<tr id="message_{$Message.id}" class="title message_head msgcat-{$Message.cat}{if $MessID != 999 && $Message.unread == 1} mes_unread{/if}">
 		<td style="width:40px;" rowspan="2">
 		{if $MessID != 999}<input name="messageID[{$Message.id}]" value="1" type="checkbox">{/if}
 		</td>
@@ -45,6 +45,11 @@
 		<td>{$Message.subject}
 		{if $Message.type == 1 && $MessID != 999}
 		<a href="#" onclick="return Dialog.PM({$Message.sender}, Message.CreateAnswer('{$Message.subject}'));" title="{$LNG.mg_answer_to} {strip_tags($Message.from)}"><i class="far fa-envelope" title="Message privé" style="font-size: 15px;"></i></a>
+		{/if}
+		{if $MessID == 199}
+		<a href="#" onclick="Message.msgArchive({$Message.id}, 199, 0);return false;" title="{$LNG.mg_move_outarchive}"><i class="fas fa-box-open" style="font-size: 15px;"></i></a>
+		{elseif $MessID != 999}
+		<a href="#" onclick="Message.msgArchive({$Message.id}, {$Message.cat}, 1);return false;" title="{$LNG.mg_move_archive}"><i class="fas fa-archive" style="font-size: 15px;"></i></a>
 		{/if}
 		</td>
 	</tr>

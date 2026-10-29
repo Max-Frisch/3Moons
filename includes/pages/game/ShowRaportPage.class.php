@@ -15,6 +15,8 @@
  * @link https://github.com/jkroepke/2Moons
  */
 
+require_once 'includes/classes/class.CombatReport.php';
+
 class ShowRaportPage extends AbstractGamePage
 {
 	public static $requireModule = 0;
@@ -112,12 +114,21 @@ class ShowRaportPage extends AbstractGamePage
 		$Info		= array($reportData["attacker"], $reportData["defender"]);
 		
 		$combatReport			= unserialize($reportData['raport']);
+		if (!is_array($combatReport)) {
+			$this->printMessage($LNG['sys_raport_not_found']);
+		}
 		$combatReport['time']	= _date($LNG['php_tdformat'], $combatReport['time'], $USER['timezone']);
 		$combatReport			= $this->BCWrapperPreRev2321($combatReport);
+		$combatReport			= CombatReport::ensurePlayers($combatReport);
+
+		$summary	= CombatReport::summarize($combatReport);
 		
 		$this->assign(array(
 			'Raport'	=> $combatReport,
 			'Info'		=> $Info,
+			'Summary'	=> $summary,
+			'LossShare'	=> CombatReport::lossShare($summary),
+			'Winner'	=> CombatReport::winner(isset($combatReport['result']) ? $combatReport['result'] : ''),
 			'pageTitle'	=> $LNG['lm_topkb']
 		));
 		
@@ -153,16 +164,32 @@ class ShowRaportPage extends AbstractGamePage
 		}
 
 		$combatReport			= unserialize($reportData['raport']);
+		if (!is_array($combatReport)) {
+			$this->printMessage($LNG['sys_raport_not_found']);
+		}
 		if($isAttacker && !$isDefender && $combatReport['result'] == 'r' && count($combatReport['rounds']) <= 2) {
 			$this->printMessage($LNG['sys_raport_lost_contact']);
 		}
 		
 		$combatReport['time']	= _date($LNG['php_tdformat'], $combatReport['time'], $USER['timezone']);
 		$combatReport			= $this->BCWrapperPreRev2321($combatReport);
+		$combatReport			= CombatReport::ensurePlayers($combatReport);
+
+		$summary	= CombatReport::summarize($combatReport);
+		$winner		= CombatReport::winner(isset($combatReport['result']) ? $combatReport['result'] : '');
+		$perspective = NULL;
+		if($isAttacker xor $isDefender) {
+			$perspective = $isAttacker ? 'attacker' : 'defender';
+		}
 		
 		$this->assign(array(
-			'Raport'	=> $combatReport,
-			'pageTitle'	=> $LNG['sys_mess_attack_report']
+			'Raport'		=> $combatReport,
+			'Summary'		=> $summary,
+			'LossShare'		=> CombatReport::lossShare($summary),
+			'Winner'		=> $winner,
+			'Perspective'	=> $perspective,
+			'YouWon'		=> $perspective !== NULL ? ($winner === $perspective) : NULL,
+			'pageTitle'		=> $LNG['sys_mess_attack_report']
 		));
 		
 		$this->display('shared.mission.raport.tpl');

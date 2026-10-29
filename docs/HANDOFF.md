@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **10** (`install/migrations/migration_10.sql`).
+- DB schema is now revision **11** (`install/migrations/migration_11.sql`).
 
 ## Completed this session
 
@@ -186,6 +186,25 @@
     Stardust currency/diameter sink, expedition flavour text catalogue, and
     exact Academy combat procs.
 
+- P8 messages/reports parity (first slice):
+  - Added message archive category **199** and a per-message archive/unarchive
+    toggle (`message_archived`, migration 11). Normal categories, All and the
+    outbox exclude archived mail; Archive has its own count/unread count and
+    scoped read/delete actions. `mode=inarchive` / `mode=outarchive` are
+    owner-checked AJAX endpoints.
+  - Messages now use the live-style card grid for the twelve categories
+    (Spy/Player/Alliance/Combat/System/Transport/Expedition/Game/Construction/
+    All/Archive/Outbox) with per-category colour and unread/total counters.
+  - Combat report detail now shows a live-style result banner, attacker/
+    defender loss bar, and a per-side Start / Lost / Left table. Reports opened
+    by a participant also show the "You won/lost the battle" perspective; the
+    battle hall shows the neutral winner banner. Added
+    `includes/classes/class.CombatReport.php` (summary, loss share, winner,
+    missing-player guard) and `tests/p8_math.php` (25 checks).
+  - Not done in this slice: Niburu artwork/shell reskin, richer spy/expedition
+    detail screens, and the remaining generic message writers (alliance/game/
+    construction events).
+
 ## Manual verification done
 
 - `ADMIN=1 tools/smoke.sh`: 98/98 pass.
@@ -196,7 +215,16 @@
 - `docker compose exec -T web php tests/blackmarket_math.php`: 34/34 pass.
 - `docker compose exec -T web php tests/collider_math.php`: 17/17 pass.
 - `docker compose exec -T web php tests/p7_math.php`: 95/95 pass.
-- `ADMIN=1 tools/smoke.sh`: 112/112 pass (adds information cards for 71/221/225/412 and the defense shipyard).
+- `docker compose exec -T web php tests/p8_math.php`: 25/25 pass.
+- `ADMIN=1 tools/smoke.sh`: 116/116 pass (adds archive/outbox message views).
+- Message archive: `mode=inarchive` set `message_archived=1` on message 60,
+  the Archive view rendered it, and `mode=outarchive` returned it to the
+  inbox; the row was restored afterwards.
+- Combat report: inserted a synthetic two-round report, rendered it as the
+  attacker (`report-banner win`, "You won the battle.", loss bar 31.03% /
+  68.97%, Start/Lost/Left rows), then removed the test report. A missing
+  player entry in the synthetic data is now guarded by
+  `CombatReport::ensurePlayers()`.
 - Online Bonus claim: admin level 0 paid 7,000 DM + 1 Academy point and added
   424 peaceful seconds; the cooldown was written.
 - Premium purchase: 1% storage for 1 day cost 1 Antimatter, wrote the row and
@@ -317,8 +345,12 @@
 
 **Finish P7**: add the Stardust currency and Planetarium diameter sink, port the
 expedition flavour catalogue, model the eight Academy damage procs, and decide
-whether to migrate remaining build costs to the captured values. Then P8
-reskin/reports. B008 is still open and needs an exact page/SQL error.
+whether to migrate remaining build costs to the captured values.
+
+**Continue P8**: port the Niburu artwork/shell reskin (private/local use), add
+richer spy/expedition report detail screens, and wire the remaining generic
+message writers (alliance/game/construction). B008 is still open and needs an
+exact page/SQL error.
 
 P6 follow-ups: multi-weapon Collider/Arsenal combat classes remain P7; the
 Planetarium diameter/Stardust sink is not wired because Stardust is not part

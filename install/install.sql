@@ -1913,3 +1913,10 @@ INSERT INTO %PREFIX%vars_requriements (`elementID`,`requireID`,`requireLevel`) V
 (419,121,17),
 (419,122,19),
 (419,199,7);
+
+-- P8 message archive (mirrors migration_11.sql)
+ALTER TABLE %PREFIX%messages
+  ADD `message_archived` tinyint(1) unsigned NOT NULL DEFAULT '0' AFTER `message_deleted`;
+
+ALTER TABLE %PREFIX%messages
+  ADD INDEX `message_archived` (`message_owner`, `message_archived`);

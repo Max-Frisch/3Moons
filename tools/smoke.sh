@@ -85,6 +85,10 @@ GAME_PAGES=(
   "alliance&mode=info&id=999999"
   "fleetTable&mode=createACS"
   "messages&mode=view&messcat=100"
+  "messages&mode=view&messcat=199"
+  "messages&mode=view&messcat=999"
+  "messages&messcat=199"
+  "messages&messcat=999"
   "nonexistent"
 )
 

@@ -181,6 +181,12 @@ $LNG['sys_debris'] 							= 'Rubblefield';
 $LNG['sys_destruc_title']       		   	= 'The following fleets face each other for a moon destruction:';
 $LNG['sys_mess_destruc_report']  		  	= 'Report: Moon destruction';
 $LNG['sys_raport_not_found']				= 'Invalid Battle Report ID';
+$LNG['sys_report_start']					= 'Start';
+$LNG['sys_report_lost']						= 'Lost';
+$LNG['sys_report_left']						= 'Left';
+$LNG['sys_report_you_won']					= 'You won the battle.';
+$LNG['sys_report_you_lost']					= 'You lost the battle.';
+$LNG['sys_report_draw_you']					= 'The battle ended in a draw.';
 
 $LNG['sys_raport_lost_contact']				= 'The contact to the attacking fleet was lost (that is, it was shot down in the first round.)';
 $LNG['sys_destruc_lune']          		 	= 'The probability of a moon destruction is: %d%% ';

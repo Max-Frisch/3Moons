@@ -60,11 +60,33 @@ class ShowMessagesPage extends AbstractGamePage
                 ':limit'    => MESSAGES_PER_PAGE
             ));
         }
+		elseif ($MessCategory == 199)
+		{
+            $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_owner = :userId AND message_type != 50 AND message_deleted IS NULL AND message_archived = 1;";
+            $MessageCount = $db->selectSingle($sql, array(
+                ':userId'   => $USER['id'],
+            ), 'state');
+
+            $maxPage	= max(1, ceil($MessageCount / MESSAGES_PER_PAGE));
+            $page		= max(1, min($page, $maxPage));
+
+            $sql = "SELECT message_id, message_time, message_from, message_subject, message_sender, message_type, message_unread, message_text
+                       FROM %%MESSAGES%%
+                       WHERE message_owner = :userId AND message_type != 50 AND message_deleted IS NULL AND message_archived = 1
+                       ORDER BY message_time DESC
+                       LIMIT :offset, :limit";
+
+            $MessageResult = $db->select($sql, array(
+                ':userId'       => $USER['id'],
+                ':offset'       => (($page - 1) * MESSAGES_PER_PAGE),
+                ':limit'        => MESSAGES_PER_PAGE
+            ));
+        }
 		else
 		{
             if ($MessCategory == 100)
 			{
-                $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_owner = :userId AND message_deleted IS NULL;";
+                $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_owner = :userId AND message_deleted IS NULL AND message_archived = 0;";
                 $MessageCount = $db->selectSingle($sql, array(
                     ':userId'   => $USER['id'],
                 ), 'state');
@@ -74,7 +96,7 @@ class ShowMessagesPage extends AbstractGamePage
 
                 $sql = "SELECT message_id, message_time, message_from, message_subject, message_sender, message_type, message_unread, message_text
                            FROM %%MESSAGES%%
-                           WHERE message_owner = :userId AND message_deleted IS NULL
+                           WHERE message_owner = :userId AND message_deleted IS NULL AND message_archived = 0
                            ORDER BY message_time DESC
                            LIMIT :offset, :limit";
 
@@ -86,7 +108,7 @@ class ShowMessagesPage extends AbstractGamePage
             }
 			else
 			{
-                $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_owner = :userId AND message_type = :messCategory AND message_deleted IS NULL;";
+                $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_owner = :userId AND message_type = :messCategory AND message_deleted IS NULL AND message_archived = 0;";
 
                 $MessageCount = $db->selectSingle($sql, array(
                     ':userId'       => $USER['id'],
@@ -95,7 +117,7 @@ class ShowMessagesPage extends AbstractGamePage
 
                 $sql = "SELECT message_id, message_time, message_from, message_subject, message_sender, message_type, message_unread, message_text
                            FROM %%MESSAGES%%
-                           WHERE message_owner = :userId AND message_type = :messCategory AND message_deleted IS NULL
+                           WHERE message_owner = :userId AND message_type = :messCategory AND message_deleted IS NULL AND message_archived = 0
                            ORDER BY message_time DESC
                            LIMIT :offset, :limit";
 
@@ -124,6 +146,7 @@ class ShowMessagesPage extends AbstractGamePage
                 'type'		=> $MessageRow['message_type'],
                 'unread'	=> $MessageRow['message_unread'],
                 'text'		=> mb_convert_encoding($MessageRow['message_text'], 'ISO-8859-1', 'UTF-8'),
+                'cat'		=> (int) $MessageRow['message_type'],
             );
         }
 
@@ -146,6 +169,38 @@ class ShowMessagesPage extends AbstractGamePage
     }
 
 
+    function inarchive()
+    {
+        $this->setArchiveState(1);
+    }
+
+    function outarchive()
+    {
+        $this->setArchiveState(0);
+    }
+
+    private function setArchiveState($state)
+    {
+        global $USER;
+
+        $messageID = HTTP::_GP('MsgID', 0);
+        if (!is_numeric($messageID) || $messageID <= 0) {
+            $this->sendJSON(5);
+        }
+
+        $db = Database::get();
+        $sql = "UPDATE %%MESSAGES%%
+            SET message_archived = :state
+            WHERE message_id = :messageID AND message_owner = :userID AND message_type != 50;";
+        $db->update($sql, array(
+            ':state'        => (int) $state,
+            ':messageID'    => (int) $messageID,
+            ':userID'       => $USER['id'],
+        ));
+
+        $this->sendJSON(1);
+    }
+
     function action()
     {
         global $USER;
@@ -157,6 +212,7 @@ class ShowMessagesPage extends AbstractGamePage
         $messageIDs		= HTTP::_GP('messageID', array());
 
         $redirectUrl	= 'game.php?page=messages&category='.$MessCategory.'&side='.$page;
+        $archiveFilter	= ($MessCategory == 199) ? ' AND message_archived = 1' : ' AND message_archived = 0';
 
 		$action			= false;
 
@@ -176,22 +232,22 @@ class ShowMessagesPage extends AbstractGamePage
         if($action == 'deleteunmarked' && empty($messageIDs))
             $action	= 'deletetypeall';
 
-        if($action == 'deletetypeall' && $MessCategory == 100)
+        if($action == 'deletetypeall' && ($MessCategory == 100 || $MessCategory == 199))
             $action	= 'deleteall';
 
-        if($action == 'readtypeall' && $MessCategory == 100)
+        if($action == 'readtypeall' && ($MessCategory == 100 || $MessCategory == 199))
             $action	= 'readall';
 
         switch($action)
         {
             case 'readall':
-                $sql = "UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_owner = :userID;";
+                $sql = "UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_owner = :userID".$archiveFilter.";";
                 $db->update($sql, array(
                     ':userID'   => $USER['id']
                 ));
 			break;
             case 'readtypeall':
-                $sql = "UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_owner = :userID AND message_type = :messCategory;";
+                $sql = "UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_owner = :userID AND message_type = :messCategory".$archiveFilter.";";
                 $db->update($sql, array(
                     ':userID'       => $USER['id'],
                     ':messCategory' => $MessCategory
@@ -210,20 +266,20 @@ class ShowMessagesPage extends AbstractGamePage
                     $this->redirectTo($redirectUrl);
                 }
 
-                $sql = 'UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_id IN ('.implode(',', array_keys($messageIDs)).') AND message_owner = :userID;';
+                $sql = 'UPDATE %%MESSAGES%% SET message_unread = 0 WHERE message_id IN ('.implode(',', array_keys($messageIDs)).') AND message_owner = :userID'.$archiveFilter.';';
                 $db->update($sql, array(
                     ':userID'       => $USER['id'],
                 ));
 			break;
             case 'deleteall':
                 if(Config::get()->message_delete_behavior == 1) {
-                    $sql = "UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_owner = :userID;";
+                    $sql = "UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_owner = :userID".$archiveFilter.";";
                     $db->update($sql, array(
                         ':timestamp'    => TIMESTAMP,
                         ':userID'       => $USER['id']
                     ));
                 } else {
-                    $sql = "DELETE FROM %%MESSAGES%% WHERE message_owner = :userID;";
+                    $sql = "DELETE FROM %%MESSAGES%% WHERE message_owner = :userID".$archiveFilter.";";
                     $db->delete($sql, array(
                         ':userID'       => $USER['id']
                     ));
@@ -231,14 +287,14 @@ class ShowMessagesPage extends AbstractGamePage
 			break;
             case 'deletetypeall':
                 if(Config::get()->message_delete_behavior == 1) {
-                    $sql = "UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_owner = :userID AND message_type = :messCategory;";
+                    $sql = "UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_owner = :userID AND message_type = :messCategory".$archiveFilter.";";
                     $db->update($sql, array(
                         ':timestamp' => TIMESTAMP,
                         ':userID' => $USER['id'],
                         ':messCategory' => $MessCategory
                     ));
                 } else {
-                    $sql = "DELETE FROM %%MESSAGES%% WHERE message_owner = :userID AND message_type = :messCategory;";
+                    $sql = "DELETE FROM %%MESSAGES%% WHERE message_owner = :userID AND message_type = :messCategory".$archiveFilter.";";
                     $db->delete($sql, array(
                         ':userID' => $USER['id'],
                         ':messCategory' => $MessCategory
@@ -259,13 +315,13 @@ class ShowMessagesPage extends AbstractGamePage
                 }
 
                 if(Config::get()->message_delete_behavior == 1) {
-                    $sql = 'UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_id IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId;';
+                    $sql = 'UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_id IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId'.$archiveFilter.';';
                     $db->update($sql, array(
                         ':timestamp' => TIMESTAMP,
                         ':userId' => $USER['id'],
                     ));
                 } else {
-                    $sql = 'DELETE FROM %%MESSAGES%% WHERE message_id IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId;';
+                    $sql = 'DELETE FROM %%MESSAGES%% WHERE message_id IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId'.$archiveFilter.';';
                     $db->delete($sql, array(
                         ':userId' => $USER['id'],
                     ));
@@ -285,13 +341,13 @@ class ShowMessagesPage extends AbstractGamePage
                 }
 
                 if(Config::get()->message_delete_behavior == 1) {
-                    $sql = 'UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_id NOT IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId;';
+                    $sql = 'UPDATE %%MESSAGES%% SET message_deleted = :timestamp WHERE message_id NOT IN (' . implode(',', array_keys($messageIDs)) . ') AND message_owner = :userId'.$archiveFilter.';';
                     $db->update($sql, array(
                         ':timestamp' => TIMESTAMP,
                         ':userId' => $USER['id'],
                     ));
                 } else {
-                    $sql = 'DELETE FROM %%MESSAGES%% WHERE message_id NOT IN ('.implode(',', array_keys($messageIDs)).') AND message_owner = :userId;';
+                    $sql = 'DELETE FROM %%MESSAGES%% WHERE message_id NOT IN ('.implode(',', array_keys($messageIDs)).') AND message_owner = :userId'.$archiveFilter.';';
                     $db->delete($sql, array(
                         ':userId'       => $USER['id'],
                     ));
@@ -372,7 +428,7 @@ class ShowMessagesPage extends AbstractGamePage
 
         $db = Database::get();
 
-        $TitleColor    	= array ( 0 => '#FFFF00', 1 => '#FF6699', 2 => '#FF3300', 3 => '#FF9900', 4 => '#773399', 5 => '#009933', 15 => '#6495ed', 50 => '#666600', 99 => '#007070', 100 => '#ABABAB', 999 => '#CCCCCC');
+        $TitleColor    	= array ( 0 => '#FFFF00', 1 => '#FF6699', 2 => '#FF3300', 3 => '#FF9900', 4 => '#773399', 5 => '#009933', 15 => '#6495ed', 50 => '#666600', 99 => '#007070', 100 => '#ABABAB', 199 => '#00FF1E', 999 => '#CCCCCC');
 
         $sql = "SELECT COUNT(*) as state FROM %%MESSAGES%% WHERE message_sender = :userID AND message_type != 50;";
         $MessOut = $db->selectSingle($sql, array(
@@ -380,8 +436,8 @@ class ShowMessagesPage extends AbstractGamePage
         ), 'state');
 
         $OperatorList	= array();
-        $Total			= array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 15 => 0, 50 => 0, 99 => 0, 100 => 0, 999 => 0);
-        $UnRead			= array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 15 => 0, 50 => 0, 99 => 0, 100 => 0, 999 => 0);
+        $Total			= array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 15 => 0, 50 => 0, 99 => 0, 100 => 0, 199 => 0, 999 => 0);
+        $UnRead			= array(0 => 0, 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0, 15 => 0, 50 => 0, 99 => 0, 100 => 0, 199 => 0, 999 => 0);
 
         $sql = "SELECT username, email FROM %%USERS%% WHERE universe = :universe AND authlevel != :authlevel ORDER BY username ASC;";
         $OperatorResult = $db->select($sql, array(
@@ -394,7 +450,7 @@ class ShowMessagesPage extends AbstractGamePage
             $OperatorList[$OperatorRow['username']]	= $OperatorRow['email'];
         }
 
-        $sql = "SELECT message_type, SUM(message_unread) as message_unread, COUNT(*) as count FROM %%MESSAGES%% WHERE message_owner = :userID AND message_deleted IS NULL GROUP BY message_type;";
+        $sql = "SELECT message_type, SUM(message_unread) as message_unread, COUNT(*) as count FROM %%MESSAGES%% WHERE message_owner = :userID AND message_deleted IS NULL AND message_archived = 0 GROUP BY message_type;";
         $CategoryResult = $db->select($sql, array(
             ':userID'   => $USER['id']
         ));
@@ -405,8 +461,15 @@ class ShowMessagesPage extends AbstractGamePage
             $Total[$CategoryRow['message_type']]	= $CategoryRow['count'];
         }
 
-        $UnRead[100]	= array_sum($UnRead);
-        $Total[100]		= array_sum($Total);
+        $sql = "SELECT SUM(message_unread) as message_unread, COUNT(*) as count FROM %%MESSAGES%% WHERE message_owner = :userID AND message_type != 50 AND message_deleted IS NULL AND message_archived = 1;";
+        $ArchiveResult = $db->selectSingle($sql, array(
+            ':userID'   => $USER['id']
+        ));
+        $UnRead[199]	= (int) $ArchiveResult['message_unread'];
+        $Total[199]		= (int) $ArchiveResult['count'];
+
+        $UnRead[100]	= array_sum($UnRead) - $UnRead[199];
+        $Total[100]		= array_sum($Total) - $Total[199];
         $Total[999]		= $MessOut;
 
         $CategoryList        = array();

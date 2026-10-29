@@ -1,5 +1,13 @@
 {block name="title" prepend}{$pageTitle}{/block}
 {block name="content"}
+{if isset($Winner)}
+<div class="report-banner {if $Winner == 'attacker'}win{elseif $Winner == 'defender'}lose{else}draw{/if}">
+	<h2>{if $Winner == 'attacker'}{$LNG.sys_attacker_won}{elseif $Winner == 'defender'}{$LNG.sys_defender_won}{else}{$LNG.sys_both_won}{/if}</h2>
+	{if $Perspective !== NULL}
+	<div class="report-perspective">{if $Winner == 'draw'}{$LNG.sys_report_draw_you}{elseif $YouWon}{$LNG.sys_report_you_won}{else}{$LNG.sys_report_you_lost}{/if}</div>
+	{/if}
+</div>
+{/if}
 {if isset($Info)}
 <table style="width:100%">
 	<tr>
@@ -184,4 +192,42 @@
 
 {$Raport.additionalInfo}
 </div>
+
+{if isset($Summary)}
+<div class="report-lossbar" title="{$LNG.sys_attacker_lostunits} {$Summary.attacker.lostTotal|number} {$LNG.sys_units} / {$LNG.sys_defender_lostunits} {$Summary.defender.lostTotal|number} {$LNG.sys_units}">
+	<div class="attacker" style="width:{$LossShare.attacker}%"></div>
+	<div class="defender" style="width:{$LossShare.defender}%"></div>
+</div>
+
+<div class="report-summary-wrap">
+	<div class="report-summary">
+		<div class="report-summary-title">{$LNG.sys_attack_attacker_pos}</div>
+		<table class="report-summary" style="width:100%;">
+			<tr><th>{$LNG.sys_ship_type}</th><th>{$LNG.sys_report_start}</th><th>{$LNG.sys_report_lost}</th><th>{$LNG.sys_report_left}</th></tr>
+			{foreach $Summary.attacker.start as $ShipID => $StartAmount}
+			<tr>
+				<td>{$LNG.shortNames.{$ShipID}}</td>
+				<td>{$StartAmount|number}</td>
+				<td>{$Summary.attacker.lost.$ShipID|number}</td>
+				<td>{$Summary.attacker.left.$ShipID|number}</td>
+			</tr>
+			{/foreach}
+		</table>
+	</div>
+	<div class="report-summary">
+		<div class="report-summary-title">{$LNG.sys_attack_defender_pos}</div>
+		<table class="report-summary" style="width:100%;">
+			<tr><th>{$LNG.sys_ship_type}</th><th>{$LNG.sys_report_start}</th><th>{$LNG.sys_report_lost}</th><th>{$LNG.sys_report_left}</th></tr>
+			{foreach $Summary.defender.start as $ShipID => $StartAmount}
+			<tr>
+				<td>{$LNG.shortNames.{$ShipID}}</td>
+				<td>{$StartAmount|number}</td>
+				<td>{$Summary.defender.lost.$ShipID|number}</td>
+				<td>{$Summary.defender.left.$ShipID|number}</td>
+			</tr>
+			{/foreach}
+		</table>
+	</div>
+</div>
+{/if}
 {/block} 
