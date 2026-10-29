@@ -135,6 +135,27 @@ class BuildFunctions
         return true;
     }
 
+    /**
+     * Throughput multiplier from the matching conveyor building (71/72/73)
+     * and the Arsenal conveyor upgrade (14/15/16). L0 keeps the classic 2Moons
+     * rate (factor 1), L1 is the baseline, each further level adds one multiple.
+     */
+    private static function getConveyorSpeedFactor($USER, $PLANET, $Element)
+    {
+        global $resource;
+
+        $class = Arsenal::conveyorClass($Element);
+        if ($class === NULL) {
+            return 1.0;
+        }
+        $building = array('light' => 71, 'medium' => 72, 'heavy' => 73);
+        $buildingId = $building[$class];
+        $level = isset($PLANET[$resource[$buildingId]]) ? (int)$PLANET[$resource[$buildingId]] : 0;
+        $owned = Arsenal::getOwned(isset($USER['id']) ? $USER['id'] : 0);
+        $upgrade = Arsenal::conveyorUpgradePct($owned, $Element);
+        return max(1, $level) * (1 + $upgrade / 100);
+    }
+
     public static function getBuildingTime($USER, $PLANET, $Element, $elementPrice = NULL, $forDestroy = false, $forLevel = NULL)
     {
         global $resource, $reslist, $requeriments;
@@ -160,9 +181,11 @@ class BuildFunctions
         if	   (in_array($Element, $reslist['build'])) {
             $time	= $elementCost / ($config->game_speed * (1 + $PLANET[$resource[14]])) * pow(0.5, $PLANET[$resource[15]]) * (1 + $USER['factor']['BuildTime']);
         } elseif (in_array($Element, $reslist['fleet'])) {
-            $time	= $elementCost / ($config->game_speed * (1 + $PLANET[$resource[21]])) * pow(0.5, $PLANET[$resource[15]]) * (1 + $USER['factor']['ShipTime']);
+            $conveyorFactor = self::getConveyorSpeedFactor($USER, $PLANET, $Element);
+            $time	= $elementCost / ($config->game_speed * (1 + $PLANET[$resource[21]])) * pow(0.5, $PLANET[$resource[15]]) * (1 + $USER['factor']['ShipTime']) / $conveyorFactor;
         } elseif (in_array($Element, $reslist['defense'])) {
-            $time	= $elementCost / ($config->game_speed * (1 + $PLANET[$resource[21]])) * pow(0.5, $PLANET[$resource[15]]) * (1 + $USER['factor']['DefensiveTime']);
+            $conveyorFactor = self::getConveyorSpeedFactor($USER, $PLANET, $Element);
+            $time	= $elementCost / ($config->game_speed * (1 + $PLANET[$resource[21]])) * pow(0.5, $PLANET[$resource[15]]) * (1 + $USER['factor']['DefensiveTime']) / $conveyorFactor;
         } elseif (in_array($Element, $reslist['tech'])) {
             if(is_numeric($PLANET[$resource[31].'_inter']))
             {

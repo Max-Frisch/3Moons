@@ -309,19 +309,30 @@ function getShipType($id, $count, $player = null)
     $shield = $CombatCaps[$id]['shield'];
     $cost = array($pricelist[$id]['cost'][METAL_ID], $pricelist[$id]['cost'][CRYSTAL_ID]);
     $power = $CombatCaps[$id]['attack'];
+    $hull = class_exists('CombatStats') ? CombatStats::hull($id) : null;
     if ($id > ID_MIN_SHIPS && $id < ID_MAX_SHIPS)
     {
-        $shipType = new Ship($id, $count, $rf, $shield, $cost, $power);
+        $shipType = new Ship($id, $count, $rf, $shield, $cost, $power, null, null, null, $hull);
     }
     else
     {
-        $shipType = new Defense($id, $count, $rf, $shield, $cost, $power);
+        $shipType = new Defense($id, $count, $rf, $shield, $cost, $power, null, null, null, $hull);
     }
 
-    if ($player !== null && isset($player['factor']['Arsenal'][$id]))
+    if ($player !== null && class_exists('Arsenal'))
     {
-        $bonus = $player['factor']['Arsenal'][$id];
-        $shipType->applyArsenalBonus($bonus['Attack'], $bonus['Shield'], $bonus['Defensive']);
+        $owned = Arsenal::getOwned(isset($player['id']) ? $player['id'] : 0);
+        $componentPower = Arsenal::componentAttackPower($owned, $id, $power, $player);
+        $bonus = Arsenal::combatPercents($owned, $id);
+        if ($componentPower !== null)
+        {
+            $shipType->setPower($componentPower);
+            $shipType->applyArsenalBonus(0, $bonus['Shield'], $bonus['Defensive']);
+        }
+        elseif ($bonus['Attack'] != 0 || $bonus['Shield'] != 0 || $bonus['Defensive'] != 0)
+        {
+            $shipType->applyArsenalBonus($bonus['Attack'], $bonus['Shield'], $bonus['Defensive']);
+        }
     }
 
     return $shipType;
@@ -346,23 +357,26 @@ function getFleet($id)
 
 function getTechsFromArray($player)
 {
-    $attTech = $player['military_tech'] + $player['factor']['Attack'] / WEAPONS_TECH_INCREMENT_FACTOR;
-    $shieldTech = $player['defence_tech'] + $player['factor']['Shield'] / SHIELDS_TECH_INCREMENT_FACTOR;
-    $defenceTech = $player['shield_tech'] + $player['factor']['Defensive'] / ARMOUR_TECH_INCREMENT_FACTOR;
-    return array($attTech,$defenceTech,$shieldTech);
+    $attPct = opbeTechBonusPct($player['military_tech']) + (float)$player['factor']['Attack'];
+    $shieldPct = opbeTechBonusPct($player['defence_tech']) + (float)$player['factor']['Shield'];
+    $defencePct = opbeTechBonusPct($player['shield_tech']) + (float)$player['factor']['Defensive'];
+    return array(
+        opbeTechLevelForPct($attPct),
+        opbeTechLevelForPct($defencePct),
+        opbeTechLevelForPct($shieldPct)
+    );
 }
 
 function getTechsFromArrayForReport($player)
 {
-    list($attTech, $defenceTech, $shieldTech) = getTechsFromArray($player);
-    $attTech = 1 + $attTech * WEAPONS_TECH_INCREMENT_FACTOR;
-    $defenceTech = 1 + $defenceTech * ARMOUR_TECH_INCREMENT_FACTOR;
-    $shieldTech = 1 + $shieldTech * SHIELDS_TECH_INCREMENT_FACTOR;
-    
+    $attPct = opbeTechBonusPct($player['military_tech']) + (float)$player['factor']['Attack'];
+    $shieldPct = opbeTechBonusPct($player['defence_tech']) + (float)$player['factor']['Shield'];
+    $defencePct = opbeTechBonusPct($player['shield_tech']) + (float)$player['factor']['Defensive'];
+
     return array(
-        $attTech,
-        $defenceTech,
-        $shieldTech);
+        1 + $attPct / 100,
+        1 + $defencePct / 100,
+        1 + $shieldPct / 100);
 }
 
 ?>

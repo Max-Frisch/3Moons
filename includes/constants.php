@@ -98,7 +98,7 @@ define('BANNED_USERS_PER_PAGE'		, 25);
 define('COMPARE_IP_BLOCKS'			, 2);
 
 // Max Round on Combats
-define('MAX_ATTACK_ROUNDS'			, 6);
+define('MAX_ATTACK_ROUNDS'			, 8);
 
 // Enable the one-Click SImulation on Spy-Raports
 define('ENABLE_SIMULATOR_LINK'		, true);

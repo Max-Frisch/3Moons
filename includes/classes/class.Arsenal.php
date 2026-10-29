@@ -80,6 +80,61 @@ class Arsenal
         419 => array('weapon' => 'ion',          'armor' => 'heavy',  'shield' => 'heavy',  'engine' => ''),
     );
 
+    // Live information-card weapon components: each entry is
+    // array(class, baseAttack). Multi-weapon units (213, 216, 221, 222, 225-228,
+    // 411-419) keep every component so the specific laser/ion/plasma/graviton
+    // research and that component's Arsenal class can be applied separately.
+    private static $unitWeapons = array(
+        204 => array(array('standard', 50)),
+        205 => array(array('standard', 150)),
+        206 => array(array('ion', 400)),
+        207 => array(array('laser', 700)),
+        211 => array(array('plasma', 1400)),
+        213 => array(array('laser', 1500), array('plasma', 500)),
+        214 => array(array('gravitational', 150000)),
+        215 => array(array('laser', 1400)),
+        216 => array(array('laser', 20250), array('gravitational', 114750)),
+        217 => array(array('standard', 40)),
+        218 => array(array('laser', 780000), array('gravitational', 4420000)),
+        221 => array(array('plasma', 1800000), array('gravitational', 4200000)),
+        222 => array(array('laser', 600000), array('plasma', 1000000), array('gravitational', 2400000)),
+        225 => array(array('laser', 10000), array('ion', 10000)),
+        226 => array(array('laser', 19500), array('ion', 45500)),
+        227 => array(array('laser', 117500), array('ion', 188000), array('gravitational', 164500)),
+        228 => array(array('laser', 225000), array('ion', 450000), array('plasma', 300000), array('gravitational', 525000)),
+        401 => array(array('standard', 80)),
+        402 => array(array('laser', 100)),
+        403 => array(array('laser', 250)),
+        404 => array(array('standard', 1100)),
+        405 => array(array('ion', 150)),
+        406 => array(array('plasma', 3000)),
+        410 => array(array('gravitational', 500000)),
+        411 => array(array('laser', 150000000), array('ion', 150000000), array('plasma', 250000000), array('gravitational', 450000000)),
+        412 => array(array('laser', 200000), array('gravitational', 200000)),
+        413 => array(array('plasma', 225000), array('gravitational', 675000)),
+        414 => array(array('ion', 1875000), array('gravitational', 625000)),
+        415 => array(array('ion', 800000), array('plasma', 2400000), array('gravitational', 4800000)),
+        416 => array(array('laser', 2700), array('ion', 6300)),
+        417 => array(array('ion', 6000), array('plasma', 6000)),
+        418 => array(array('ion', 10500), array('plasma', 17500), array('gravitational', 42000)),
+        419 => array(array('ion', 302000), array('plasma', 302000), array('gravitational', 906000)),
+    );
+
+    // Conveyor factory membership measured live (ARSENAL_UPGRADES_IMPLEMENTATION.md):
+    // each ship/defense class is produced by one of the 71/72/73 buildings.
+    private static $conveyorClass = array(
+        202 => 'light', 203 => 'light', 204 => 'light', 205 => 'light', 212 => 'light',
+        401 => 'light', 402 => 'light', 403 => 'light',
+        206 => 'medium', 207 => 'medium', 209 => 'medium', 211 => 'medium',
+        213 => 'medium', 215 => 'medium', 217 => 'medium', 219 => 'medium',
+        404 => 'medium', 405 => 'medium', 406 => 'medium', 416 => 'medium', 417 => 'medium',
+        502 => 'medium', 503 => 'medium',
+        214 => 'heavy', 216 => 'heavy', 220 => 'heavy', 221 => 'heavy', 222 => 'heavy',
+        225 => 'heavy', 226 => 'heavy', 227 => 'heavy', 228 => 'heavy',
+        410 => 'heavy', 412 => 'heavy', 413 => 'heavy', 414 => 'heavy',
+        415 => 'heavy', 418 => 'heavy', 419 => 'heavy',
+    );
+
     private static $weaponCodes = array(
         'laser' => 1,
         'ion' => 2,
@@ -350,6 +405,68 @@ class Arsenal
             $result['Shield'] = self::valueFor($owned, self::$classCodes['shield'][$classes['shield']]);
         }
         return $result;
+    }
+
+    public static function conveyorClass($unitCode)
+    {
+        $unitCode = (int)$unitCode;
+        return isset(self::$conveyorClass[$unitCode]) ? self::$conveyorClass[$unitCode] : NULL;
+    }
+
+    /** Arsenal 14/15/16 bonus (percent) for the unit's conveyor class. */
+    public static function conveyorUpgradePct($owned, $unitCode)
+    {
+        $class = self::conveyorClass($unitCode);
+        if ($class === NULL || !isset(self::$classCodes['conveyor'][$class])) {
+            return 0.0;
+        }
+        return self::valueFor($owned, self::$classCodes['conveyor'][$class]);
+    }
+
+    public static function weaponComponents($unitCode)
+    {
+        $unitCode = (int)$unitCode;
+        return isset(self::$unitWeapons[$unitCode]) ? self::$unitWeapons[$unitCode] : array();
+    }
+
+    /** Specific weapon research bonus (percent) for an Arsenal weapon class. */
+    public static function weaponTechPct($player, $class)
+    {
+        switch ($class) {
+            case 'laser':
+                return 2 * (isset($player['laser_tech']) ? (int)$player['laser_tech'] : 0);
+            case 'ion':
+                return 2 * (isset($player['ionic_tech']) ? (int)$player['ionic_tech'] : 0);
+            case 'plasma':
+                return 2 * (isset($player['buster_tech']) ? (int)$player['buster_tech'] : 0);
+            case 'gravitational':
+                return 4 * (isset($player['graviton_tech']) ? (int)$player['graviton_tech'] : 0);
+            default:
+                return 0.0;
+        }
+    }
+
+    /**
+     * Total attack from the carded weapon components, each scaled by its own
+     * specific research and Arsenal upgrade. Returns NULL for units without a
+     * component map, so the caller falls back to the primary-class percentage.
+     */
+    public static function componentAttackPower($owned, $unitCode, $baseAttack, $player)
+    {
+        $components = self::weaponComponents($unitCode);
+        if (empty($components)) {
+            return NULL;
+        }
+        $total = 0.0;
+        foreach ($components as $component) {
+            list($class, $attack) = $component;
+            $pct = self::weaponTechPct($player, $class);
+            if (isset(self::$weaponCodes[$class])) {
+                $pct += self::valueFor($owned, self::$weaponCodes[$class]);
+            }
+            $total += $attack * (1 + $pct / 100);
+        }
+        return $total;
     }
 
     public static function enginePercent($owned, $unitCode)

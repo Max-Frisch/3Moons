@@ -36,14 +36,32 @@ define('USE_BIEXPLOSION_SYSTEM', true); // enable below system value
 define('PROB_TO_REAL_MAGIC', 2); //value used to adapt probability theory to critical cases.
 define('EPSILON', 1.2e-6);
 
-/*** Battle constants, default as Ogame ***/
-define('ROUNDS', 6); //how many rounds a battle have, no limits.
-define('SHIELDS_TECH_INCREMENT_FACTOR', 0.1); //how much a level increase the shield, in percentage from 0 to 1.
-define('ARMOUR_TECH_INCREMENT_FACTOR', 0.1); //how much a level increase the armour, in percentage from 0 to 1.
-define('WEAPONS_TECH_INCREMENT_FACTOR', 0.1); //how much a level increase the weapon, in percentage from 0 to 1.
-define('COST_TO_ARMOUR', 0.1); //how much cost equal the armour, from 0 to 1. 1 means the ships/defenses armour equal its cost.
-define('MIN_PROB_TO_EXPLODE', 0.3); //minimum probability at one the ships/defenses can explode, from 0 to 1. 1 means that the ship/def can explode only when they lost all hp.
-define('DEFENSE_REPAIR_PROB', 0.7); //probability to repair defenses. From 0 to 1, 1 means that defenses are always rebuilt.
+/*** Battle constants, Niburuspace live ***/
+define('ROUNDS', 8); //live draws end after round 8
+define('SHIELDS_TECH_INCREMENT_FACTOR', 0.1); //legacy; quadratic helper below is authoritative
+define('ARMOUR_TECH_INCREMENT_FACTOR', 0.1);
+define('WEAPONS_TECH_INCREMENT_FACTOR', 0.1);
+define('COST_TO_ARMOUR', 0.1); //fallback hull when no captured hull exists
+define('MIN_PROB_TO_EXPLODE', 0.3);
+define('DEFENSE_REPAIR_PROB', 0.61); //live repair share (~61%, same on win/draw)
+define('NIBURU_QUADRATIC_TECH', true);
+
+/**
+ * Live 109/110/111 curve: bonusPercent = round(L*(L+2)/4).
+ * L1=1, L5=9, L10=30, L15=64, L20=110.
+ */
+function opbeTechBonusPct($level)
+{
+    $level = max(0.0, (float)$level);
+    return (int)round($level * ($level + 2) / 4);
+}
+
+/** Inverse of the quadratic curve, used to fold flat bonuses into a level. */
+function opbeTechLevelForPct($percent)
+{
+    $percent = max(0.0, (float)$percent);
+    return sqrt(4.0 * $percent + 1.0) - 1.0;
+}
 define('SHIP_REPAIR_PROB', 0); //same as below but for ships.
 define('USE_HITSHIP_LIMITATION', true); //this option will limit the number of exploding ships to the number of total shots received by all defender's ships.
 define('USE_EXPLODED_LIMITATION',true); //if true the number of exploded ships each round are limited to the damaged ships amount. 
@@ -60,7 +78,7 @@ define('REPAIRED_DO_DEBRIS',true);
   
 //Percentage of debris generated from destroyed ships. 
 if (!defined('SHIP_DEBRIS_FACTOR')) {
-    define('SHIP_DEBRIS_FACTOR', 0.3);
+    define('SHIP_DEBRIS_FACTOR', 0.5);
 }
 
 //Percentage of debris generated from destroyed defenses.  

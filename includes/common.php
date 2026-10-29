@@ -125,7 +125,9 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 	require 'includes/classes/class.BuildFunctions.php';
 	require 'includes/classes/class.Achievements.php';
 	require 'includes/classes/class.Academy.php';
+	require 'includes/classes/class.CombatStats.php';
 	require 'includes/classes/class.Arsenal.php';
+	require 'includes/classes/class.Expedition.php';
 	require 'includes/classes/class.BlackMarket.php';
 	require 'includes/classes/class.Collider.php';
 	require_once 'includes/classes/class.Progression.php';

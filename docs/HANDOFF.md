@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **9** (`install/migrations/migration_9.sql`).
+- DB schema is now revision **10** (`install/migrations/migration_10.sql`).
 
 ## Completed this session
 
@@ -156,6 +156,36 @@
   - Added `tests/blackmarket_math.php` (34 checks) and `tests/collider_math.php`
     (17 checks).
 
+- P7 catalog/combat/expedition parity (first slice):
+  - Added conveyor buildings 71-73 with the captured costs/requirements and
+    planet/moon columns. Their level (plus the Arsenal conveyor upgrade) now
+    scales ship/defense build time by the matching light/medium/heavy class.
+  - Added the missing Niburu ships 221/222/225-228 and defenses 412-419 with
+    captured costs/stats/cargo/speeds, the live rapid-fire table (303 rows) and
+    the full live prerequisite graph for the new ids.
+  - Updated every existing ship/defense attack/shield to the captured
+    information-card values. `CombatStats` supplies explicit hull values
+    (OPBE otherwise derives hull from 10% of build cost, which is wrong for the
+    custom units).
+  - Combat now uses the live quadratic 109/110/111 curve
+    `round(L*(L+2)/4)`, 8 rounds, 50% ship debris and 61% defense repair.
+    Weapon-specific research (120/121/122/199) and Arsenal classes are applied
+    per carded weapon component, so multi-weapon ships/defenses no longer use
+    only their primary class.
+  - Rewrote the expedition resolver around the captured X4 outcome table
+    (resources 17.07%, ships 29.05%, combat 13.5%, nothing 7.07%, DM 13.68%,
+    delay 10.47%, fast 3.88%, positive BH 1.7%, fatal BH 1.68%, stardust 1.9%),
+    84/16 pirate:alien split, mirrored enemy fleets (pirates 60-69%, aliens
+    85-94%) with the widened template, fleet-point-scaled DM, positive black
+    hole loot and new messages. Stardust is not a 3Moons currency yet, so that
+    bucket pays a resource find instead.
+  - Added `tests/p7_math.php` (95 checks) for the tech curve, hulls, conveyor
+    classes, multi-weapon attack sums, expedition weights/enemy/loot/DM and the
+    catalog migration.
+  - Excluded from this slice: full build-cost parity for existing units, the
+    Stardust currency/diameter sink, expedition flavour text catalogue, and
+    exact Academy combat procs.
+
 ## Manual verification done
 
 - `ADMIN=1 tools/smoke.sh`: 98/98 pass.
@@ -165,7 +195,8 @@
 - `docker compose exec -T web php tests/progression_math.php`: 63/63 pass.
 - `docker compose exec -T web php tests/blackmarket_math.php`: 34/34 pass.
 - `docker compose exec -T web php tests/collider_math.php`: 17/17 pass.
-- `ADMIN=1 tools/smoke.sh`: 107/107 pass (adds port, dmbuild, dmtech, planet, reward2, kollaider, collider).
+- `docker compose exec -T web php tests/p7_math.php`: 95/95 pass.
+- `ADMIN=1 tools/smoke.sh`: 112/112 pass (adds information cards for 71/221/225/412 and the defense shipyard).
 - Online Bonus claim: admin level 0 paid 7,000 DM + 1 Academy point and added
   424 peaceful seconds; the cooldown was written.
 - Premium purchase: 1% storage for 1 day cost 1 Antimatter, wrote the row and
@@ -225,6 +256,17 @@
 
 ## Data confidence / still not data-driven
 
+- **P7 now captured**: missing ships/defenses, their stats/costs where the
+  information cards exposed them, the 303-row rapid-fire table, all new
+  prerequisites, conveyor costs and the quadratic combat/expedition curves.
+  Defense costs for 412-415/418/419 were reconstructed from hull (10x hull),
+  because the captures exposed stats but not build prices.
+- **Still open in P7**: existing-unit build costs remain the old 2Moons values
+  (stats are live); Stardust (`users.stardust`, planetarium diameter sink) is not
+  added; expedition flavour variants are still one message per outcome; Academy
+  damage procs are not split into their eight live skills.
+
+
 - **Captured (exact)**: governator ids, max levels, AP/DM price bases and
   factors, per-level 1% effect step; achievement requirement steps and unit
   growth factors; reward curves calibrated against the live star badges in
@@ -273,10 +315,10 @@
 
 ## Start here next session
 
-**P7: catalog, combat and expedition parity** - conveyor buildings 71-73,
-missing Niburu ships/defenses, multi-weapon attack components, combat
-calibration and expedition tables. B008 is still open and needs an exact
-page/SQL error. Then P8 reskin/reports.
+**Finish P7**: add the Stardust currency and Planetarium diameter sink, port the
+expedition flavour catalogue, model the eight Academy damage procs, and decide
+whether to migrate remaining build costs to the captured values. Then P8
+reskin/reports. B008 is still open and needs an exact page/SQL error.
 
 P6 follow-ups: multi-weapon Collider/Arsenal combat classes remain P7; the
 Planetarium diameter/Stardust sink is not wired because Stardust is not part

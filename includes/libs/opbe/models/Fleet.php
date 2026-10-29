@@ -70,9 +70,9 @@ class Fleet extends IterableUtil
             $shipType->setShieldsTech($shields);
             $shipType->setArmourTech($armour);
         }
-        if(is_numeric($weapons)) $this->weapons_tech = intval($weapons);
-        if(is_numeric($shields)) $this->shields_tech = intval($shields);
-        if(is_numeric($armour)) $this->armour_tech = intval($armour);
+        if(is_numeric($weapons)) $this->weapons_tech = (float)$weapons;
+        if(is_numeric($shields)) $this->shields_tech = (float)$shields;
+        if(is_numeric($armour)) $this->armour_tech = (float)$armour;
     }
     public function addShipType(ShipType $shipType)
     {

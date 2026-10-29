@@ -32,6 +32,7 @@ class ShipType extends Type
 
     private $originalPower;
     private $originalShield;
+    private $originalHull;
 
     private $singleShield;
     private $singleLife;
@@ -71,7 +72,7 @@ class ShipType extends Type
      * @param int $armour_tech
      * @return
      */
-    public function __construct($id, $count, $rf, $shield, array $cost, $power, $weapons_tech = null, $shields_tech = null, $armour_tech = null)
+    public function __construct($id, $count, $rf, $shield, array $cost, $power, $weapons_tech = null, $shields_tech = null, $armour_tech = null, $hull = null)
     {
         parent::__construct($id, 0);
 
@@ -82,15 +83,51 @@ class ShipType extends Type
 
         $this->originalShield = $shield;
         $this->originalPower = $power;
+        $this->originalHull = ($hull === null) ? COST_TO_ARMOUR * array_sum($cost) : (float)$hull;
 
         $this->singleShield = $shield;
-        $this->singleLife = COST_TO_ARMOUR * array_sum($cost);
+        $this->singleLife = $this->originalHull;
         $this->singlePower = $power;
 
         $this->increment($count);
         $this->setWeaponsTech($weapons_tech);
         $this->setArmourTech($armour_tech);
         $this->setShieldsTech($shields_tech);
+    }
+
+    /**
+     * Recompute derived stats from base values, tech percentages and Arsenal
+     * percentages. The live server applies the general 109/110/111 research
+     * quadratically and folds flat Arsenal percentages into the same sum for
+     * shield/armour; attack components are pre-scaled by their weapon research.
+     */
+    private function recalculate()
+    {
+        $attackTech  = opbeTechBonusPct($this->weapons_tech);
+        $shieldTech  = opbeTechBonusPct($this->shields_tech);
+        $armourTech  = opbeTechBonusPct($this->armour_tech);
+
+        $this->singlePower = round($this->originalPower
+            * (1 + $this->arsenalAttackPct / 100)
+            * (1 + $attackTech / 100));
+        $this->singleShield = round($this->originalShield
+            * (1 + ($shieldTech + $this->arsenalShieldPct) / 100));
+        $this->singleLife = round($this->originalHull
+            * (1 + ($armourTech + $this->arsenalArmourPct) / 100));
+
+        $count = $this->getCount();
+        $this->fullPower = $this->singlePower * $count;
+        $this->fullShield = $this->singleShield * $count;
+        $this->fullLife = $this->singleLife * $count;
+        $this->currentShield = $this->fullShield;
+        $this->currentLife = $this->fullLife;
+    }
+
+    /** Replace the base power (used for per-component weapon attack sums). */
+    public function setPower($power)
+    {
+        $this->originalPower = (float)$power;
+        $this->recalculate();
     }
 
 
@@ -104,14 +141,8 @@ class ShipType extends Type
     {
         if (!is_numeric($level))
             return;
-        $level = intval($level);
-        $diff = $level - $this->weapons_tech;
-        if ($diff < 0)
-            throw new Exception('Trying to decrease tech');
-        $this->weapons_tech = $level;
-        $incr = 1 + WEAPONS_TECH_INCREMENT_FACTOR * $diff;
-        $this->singlePower *= $incr;
-        $this->fullPower *= $incr;
+        $this->weapons_tech = (float)$level;
+        $this->recalculate();
     }
 
 
@@ -125,15 +156,8 @@ class ShipType extends Type
     {
         if (!is_numeric($level))
             return;
-        $level = intval($level);
-        $diff = $level - $this->shields_tech;
-        if ($diff < 0)
-            throw new Exception('Trying to decrease tech');
-        $this->shields_tech = $level;
-        $incr = 1 + SHIELDS_TECH_INCREMENT_FACTOR * $diff;
-        $this->singleShield *= $incr;
-        $this->fullShield *= $incr;
-        $this->currentShield *= $incr;
+        $this->shields_tech = (float)$level;
+        $this->recalculate();
     }
 
 
@@ -147,15 +171,8 @@ class ShipType extends Type
     {
         if (!is_numeric($level))
             return;
-        $level = intval($level);
-        $diff = $level - $this->armour_tech;
-        if ($diff < 0)
-            throw new Exception('Trying to decrease tech');
-        $this->armour_tech = $level;
-        $incr = 1 + ARMOUR_TECH_INCREMENT_FACTOR * $diff;
-        $this->singleLife *= $incr;
-        $this->fullLife *= $incr;
-        $this->currentLife *= $incr;
+        $this->armour_tech = (float)$level;
+        $this->recalculate();
     }
 
 
@@ -174,21 +191,7 @@ class ShipType extends Type
         $this->arsenalAttackPct = $attackPct;
         $this->arsenalShieldPct = $shieldPct;
         $this->arsenalArmourPct = $armourPct;
-
-        $attackInc = 1 + $attackPct / 100;
-        $shieldInc = 1 + $shieldPct / 100;
-        $armourInc = 1 + $armourPct / 100;
-
-        $this->singlePower *= $attackInc;
-        $this->fullPower *= $attackInc;
-
-        $this->singleShield *= $shieldInc;
-        $this->fullShield *= $shieldInc;
-        $this->currentShield *= $shieldInc;
-
-        $this->singleLife *= $armourInc;
-        $this->fullLife *= $armourInc;
-        $this->currentLife *= $armourInc;
+        $this->recalculate();
     }
 
 
@@ -540,7 +543,7 @@ class ShipType extends Type
     public function cloneMe()
     {
         $class = get_class($this);
-        $tmp = new $class($this->getId(), $this->getCount(), $this->rf, $this->originalShield, $this->cost, $this->originalPower, $this->weapons_tech, $this->shields_tech, $this->armour_tech);
+        $tmp = new $class($this->getId(), $this->getCount(), $this->rf, $this->originalShield, $this->cost, $this->originalPower, $this->weapons_tech, $this->shields_tech, $this->armour_tech, $this->originalHull);
         if ($this->arsenalAttackPct != 0 || $this->arsenalShieldPct != 0 || $this->arsenalArmourPct != 0)
         {
             $tmp->applyArsenalBonus($this->arsenalAttackPct, $this->arsenalShieldPct, $this->arsenalArmourPct);
