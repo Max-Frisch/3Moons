@@ -31,7 +31,7 @@ Deliverables:
 Exit: smoke test shows no `Fatal error`, `Warning:`, `Deprecated:`, or SQL
 errors on the main game/admin pages; known exceptions are documented.
 
-## Phase 1 - Build/research target-level UX (P1)
+## Phase 1 - Build/research target-level UX (P1) - DONE 2026-10-29
 
 The live Niburu dialog lets you choose a target level and queues all levels up
 to it. 3Moons currently only queues one level per click.
@@ -47,7 +47,7 @@ Deliverables:
 Exit: from level 23, entering 79 queues the affordable run in one action; cancel
 refunds correctly.
 
-## Phase 2 - Senate, governators, achievements (P2)
+## Phase 2 - Senate, governators, achievements (P2) - DONE 2026-10-29
 
 yamilrh already renders officers and governators on `page=officier`
 (upper half = governators, lower half = officers). The missing piece is the
@@ -64,11 +64,11 @@ Deliverables:
 Exit: achievements award AP; governator bonuses scale above 10%; officer effects
 match captured values.
 
-## Phase 3 - Academy (P3)
+## Phase 3 - Academy (P3) - DONE 2026-10-29
 
 Deliverables:
 
-- 27-skill, 3-branch tree with prerequisites and point costs.
+- 34-skill, 3-branch tree with prerequisites and point costs.
 - Academy points from the Online Bonus, donation, peaceful levels, achievements.
 - Branch reset tiers (100% / 75% / 50% refund).
 - Wire effects: combat, production, research, build time, fleet, cargo, colonies.

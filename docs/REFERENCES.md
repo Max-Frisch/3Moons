@@ -63,10 +63,11 @@ rg -n "HTTP::_GP|\$_GET|\$_POST|\$_REQUEST" includes/pages
 
 ### Academy
 
-- `neoxnova/neoxnova/internal/game/academy.go` - 27-skill tree, costs, effects.
+- `neoxnova/neoxnova/internal/game/academy.go` - 34-skill tree, costs, effects.
 - `neoxnova/neoxnova/docs/BALANCE_DATA_NEEDED.md` (Academy section).
 - `neoxnova-ops/tools/explorer/data/academy-map.json`,
   `_academy.html`, `_academy2.html`.
+- 3Moons port: `includes/classes/class.Academy.php`, `page=academy`.
 
 ### Arsenal / Market
 

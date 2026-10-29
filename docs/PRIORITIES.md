@@ -1,37 +1,33 @@
 # Priorities - impact / effort / risk
 
-Ranked for a playable, Niburuspace-like server on the 2Moons base. Effort is
-relative (S = hours, M = days, L = multi-day), not calendar estimates.
+Phase numbers match `docs/PLAYBOOK.md`. Ranked for a playable, Niburuspace-like
+server on the 2Moons base. Effort is relative (S = hours, M = days, L =
+multi-day), not calendar estimates.
 
-| # | Item | Impact | Effort | Risk | Depends | Notes |
+| Phase | Item | Impact | Effort | Risk | Depends | Notes |
 |---|---|---|---|---|---|---|
-| P0 | PHP 8 stabilization + admin 503s | Very high | S-M | Low | - | DONE 2026-10-29. 64/64 smoke pages pass. |
+| P0 | PHP 8 stabilization + admin 503s | Very high | S-M | Low | - | DONE 2026-10-29. 94/94 smoke pages pass. |
 | P0 | Smoke test for game + admin | High | S | Low | - | DONE. `tools/smoke.sh` (use `ADMIN=1` for admin). |
 | P1 | Target-level / multi-level build+research+shipyard queue | Very high | M | Medium | P0 | DONE 2026-10-29. Buildings + research accept an absolute target level and loop the existing queue; stop reasons shown. Shipyard already queues batches by quantity; no level concept. |
-| P2 | Bug sweep: game pages, admin pages, MySQL errors | High | M | Low | P0 | DONE 2026-10-29. 85/85 smoke pages. Game + admin GET surface crawled; error-page, board, alliance, missile, notes, buddy, report, log, cronjob, BBCode, utf8 and account-editor POST bugs fixed (B017-B030). B008 still needs an exact repro. |
-| P3 | Senate completion: Achievements + AP + governator scaling | High | M-L | Medium | P0 | DONE 2026-10-29. 47 achievements + `page=achievements`, AP/antimatter rewards + system messages, `users` AP/antimatter/gov-level columns (migration 5), exact live governator AP/DM curves and `base + 1%/level` scaling. Daily/peaceful/battle/moon/expo/Arsenal progress sources remain for P5/P6/P12; missing Niburu ids (conveyors, ships 221-228, defenses 412-419) remain for P10. |
-| P4 | Academy (27 skills, points, effects) | High | L | Medium | P3 | AP/points source overlaps achievements. |
-| P5 | Arsenal + Market (19 upgrades, auction) | High | L | Medium | P0 | Large additive system; data already reconstructed. |
-| P6 | Progression: peaceful level, combat XP, Bonus, Premium | High | M-L | Medium | P3 | Additive bonuses drive the Niburu feel. |
-| P7 | Black market: Merchant, DM build/tech, vouchers | Medium | M | Medium | P0 | Mostly pages + simple transactions. |
-| P8 | Planetarium: relocation, fields, diameter | Medium | M | Medium | P0 | Relocation/fields formulas are already known. |
-| P9 | Moon Collider + Empire matrix + Jumpgate | Medium | M | Medium | P0 | Additive pages; Collider is moon-only. |
-| P10 | Catalog/techtree/unit/data parity | Very high | L | High | - | Needed for real balance; can run in parallel with features. |
-| P11 | Combat model parity (OPBE vs live) | Very high | L | High | P10 | Hardest technical item; capture-driven. |
-| P12 | Expedition parity | High | M-L | Medium | P10 | Tables and report formats. |
-| P13 | UI reskin + messages/reports parity | Medium | L | Low | P0 | Artwork already mirrored in neoxnova. |
+| P2 | Senate: achievements, AP, governator scaling | High | M-L | Medium | P0 | DONE 2026-10-29. 47 achievements + `page=achievements`, AP/antimatter rewards + system messages, `users` AP/antimatter/gov-level columns, exact live governator AP/DM curves and `base + 1%/level` scaling. Daily/peaceful/battle/moon/expo/Arsenal progress sources remain for P4/P5; missing Niburu ids (conveyors, ships 221-228, defenses 412-419) remain for P7. |
+| P3 | Academy (34 skills, points, effects) | High | L | Medium | P2 | DONE 2026-10-29. Captured 34-node, 3-branch tree, point costs, prereqs, target-level upgrades, branch resets, `page=academy`, factor/fleet-cost/fuel/IRN wiring. Academy points come from achievements for now; Online Bonus/donation/peaceful sources land in P5. |
+| P4 | Arsenal and Market (19 upgrades, auction) | High | L | Medium | P0 | Large additive system; data already reconstructed. |
+| P5 | Progression: peaceful level, combat XP, Bonus, Premium | High | M-L | Medium | P2 | Additive bonuses drive the Niburu feel; online bonus is the main Academy-point source. |
+| P6 | Black market, Planetarium, Collider, Empire, Jumpgate | Medium | L | Medium | P0 | Merchant/DM build/vouchers, relocation/fields, moon collider, empire matrix, jumpgate parity. |
+| P7 | Data, combat and expedition parity | Very high | L | High | - | Catalog/techtree/units first (can run in parallel with features), then combat calibration and expedition tables. Combat parity is the hardest technical item. |
+| P8 | UI reskin + messages/reports parity | Medium | L | Low | P0 | Artwork already mirrored in neoxnova. |
 
 ## Recommended order
 
-1. **P0 stabilization** (done): research warning, admin superglobals,
-   Smarty/sprintf defects, smoke test.
-2. **P1 target-level queue** (done): buildings and research queue to an absolute
-   target level with a stop reason; research cancel/refund fixed (B016).
-3. **P2 bug sweep** (done): clean the rest of the game/admin surface.
-4. **P4/P6**: Academy, progression - the remaining Niburu identity pieces (P3 Senate/achievements is done).
-5. **P5/P7/P8/P9**: Arsenal/market, black market, planetarium, collider/empire.
-6. **P10-P12**: data/combat/expedition parity, interleaved with feature work.
-7. **P13**: reskin and report polish.
+1. **P0 stabilization** (done).
+2. **P1 target-level queue** (done).
+3. **P2 Senate/achievements** (done).
+4. **P3 Academy** (done).
+5. **P4/P5**: Arsenal/market and progression - the remaining Niburu identity
+   pieces.
+6. **P6**: black market, planetarium, collider/empire.
+7. **P7-P8**: data/combat/expedition parity, interleaved with feature work,
+   then reskin and report polish.
 
 ## Feasibility notes
 

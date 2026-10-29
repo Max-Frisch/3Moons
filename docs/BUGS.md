@@ -4,8 +4,8 @@ Status: `open`, `fixed`, `wontfix`, `needs-capture`.
 
 ## Current status (2026-10-29)
 
-`tools/smoke.sh` with `ADMIN=1`: **85/85 pages pass** (38 game + 47 admin).
-The P2 bug sweep is complete for the crawled game/admin GET surface, plus the
+`tools/smoke.sh` with `ADMIN=1`: **94/94 pages pass** (47 game + 47 admin).
+The P0 bug sweep is complete for the crawled game/admin GET surface, plus the
 admin global-message send and account-editor POST paths. Remaining known work
 is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
 
@@ -20,7 +20,7 @@ is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
 | B005 | fixed | Admin / messagelist | Undefined `$Selected` in compiled template | `ShowMessageListPage` did not assign it | Assigned `Selected => $type` |
 | B006 | fixed | Game / info | Warning on `page=information` / `playerCard` without `id` | No validation before array access | Friendly error via `printMessage()` |
 | B007 | fixed | Routing | `page=officer` 503; real page is `page=officier` | No alias | Added `officer` / `officers` aliases in `game.php` |
-| B008 | open | Admin / MySQL | Occasional MySQL errors on admin pages | Not reproduced in the P0 or P2 sweeps | Re-open with an exact page and SQL error |
+| B008 | open | Admin / MySQL | Occasional MySQL errors on admin pages | Not reproduced in the P0 sweeps | Re-open with an exact page and SQL error |
 | B009 | fixed | Admin / rights+universe | `$_GET['sid']` warning before exit | Raw superglobal | `HTTP::_GP('sid', '')` |
 | B010 | fixed | Game / research | Research page warning (screenshot) | Same as B001 | Same as B001 |
 | B011 | fixed | Admin / search | Undefined `$Searchmethod`; filter field named `fucki` | `SearchPage.tpl` variable/name mismatch | `$SearchMethod` + `name=fuki` |
