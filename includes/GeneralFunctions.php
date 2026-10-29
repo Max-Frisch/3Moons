@@ -57,6 +57,12 @@ function getFactors($USER, $Type = 'basic', $TIME = NULL) {
 	
 	$factor	= Academy::applyFactors($USER, $factor);
 
+	$arsenal	= Arsenal::factorBonuses($USER);
+	$factor['Arsenal']			= $arsenal['units'];
+	$factor['ArsenalMetal']		= $arsenal['metal'];
+	$factor['ArsenalCrystal']	= $arsenal['crystal'];
+	$factor['ArsenalDeuterium']	= $arsenal['deuterium'];
+
 	return $factor;
 }
 

@@ -360,6 +360,25 @@ HTML;
 				require_once 'includes/classes/missions/functions/calculateAttack.php';
 				$combatResult	= calculateAttack($fleetAttack, $fleetDefend, $config->Fleet_Cdr, $config->Defs_Cdr);
 
+				if($combatResult['won'] === 'a')
+				{
+					$arsenalPoints	= 0;
+					foreach($fleetArray as $shipId => $shipAmount)
+					{
+						$arsenalPoints	+= ($pricelist[$shipId]['cost'][901] + $pricelist[$shipId]['cost'][902]) * $shipAmount;
+					}
+
+					$upgradeCode	= Arsenal::rollDrop(Arsenal::tier($arsenalPoints));
+					if($upgradeCode > 0)
+					{
+						$upgradeDef	= Arsenal::getUpgrade($upgradeCode);
+						if($upgradeDef !== NULL && Arsenal::addItems($this->_fleet['fleet_owner'], $upgradeCode, 1))
+						{
+							$Message	.= '<br><br>'.sprintf($LNG['arsenal_expo_found'], $upgradeDef['name']);
+						}
+					}
+				}
+
 				$fleetArray = '';
 				$totalCount = 0;
 				

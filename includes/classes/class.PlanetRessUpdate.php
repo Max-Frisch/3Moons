@@ -299,9 +299,13 @@ class ResourceUpdate
 		} else {
 			$prodLevel	= min(1, $this->PLANET['energy'] / abs($this->PLANET['energy_used']));
 			
-			$this->PLANET['metal_perhour']		= ($temp[901]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[131]]) * $prodLevel + $temp[901]['minus']) * $this->config->resource_multiplier;
-			$this->PLANET['crystal_perhour']	= ($temp[902]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[132]]) * $prodLevel + $temp[902]['minus']) * $this->config->resource_multiplier;
-			$this->PLANET['deuterium_perhour']	= ($temp[903]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[133]]) * $prodLevel + $temp[903]['minus']) * $this->config->resource_multiplier;
+			$metalArsenal		= isset($this->USER['factor']['ArsenalMetal']) ? $this->USER['factor']['ArsenalMetal'] / 100 : 0;
+			$crystalArsenal		= isset($this->USER['factor']['ArsenalCrystal']) ? $this->USER['factor']['ArsenalCrystal'] / 100 : 0;
+			$deuteriumArsenal	= isset($this->USER['factor']['ArsenalDeuterium']) ? $this->USER['factor']['ArsenalDeuterium'] / 100 : 0;
+
+			$this->PLANET['metal_perhour']		= ($temp[901]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[131]] + $metalArsenal) * $prodLevel + $temp[901]['minus']) * $this->config->resource_multiplier;
+			$this->PLANET['crystal_perhour']	= ($temp[902]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[132]] + $crystalArsenal) * $prodLevel + $temp[902]['minus']) * $this->config->resource_multiplier;
+			$this->PLANET['deuterium_perhour']	= ($temp[903]['plus'] * (1 + $this->USER['factor']['Resource'] + 0.02 * $this->USER[$resource[133]] + $deuteriumArsenal) * $prodLevel + $temp[903]['minus']) * $this->config->resource_multiplier;
 		}
 	}
 	

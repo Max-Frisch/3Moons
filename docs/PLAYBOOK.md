@@ -75,7 +75,7 @@ Deliverables:
 
 Exit: the tree matches `academy-map.json`; effects are observable in-game.
 
-## Phase 4 - Arsenal and Market (P4)
+## Phase 4 - Arsenal and Market (P4) - DONE 2026-10-29
 
 Deliverables:
 

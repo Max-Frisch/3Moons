@@ -48,6 +48,10 @@ class ShipType extends Type
     private $shields_tech = 0;
     private $armour_tech = 0;
 
+    private $arsenalAttackPct = 0;
+    private $arsenalShieldPct = 0;
+    private $arsenalArmourPct = 0;
+
     private $rf;
     protected $lastShots;
     protected $lastShipHit;
@@ -152,6 +156,39 @@ class ShipType extends Type
         $this->singleLife *= $incr;
         $this->fullLife *= $incr;
         $this->currentLife *= $incr;
+    }
+
+
+    /**
+     * ShipType::applyArsenalBonus()
+     * Apply the owner's additive Arsenal percentages for this unit's class.
+     * Called once after construction (and again from cloneMe) so the bonus
+     * survives OPBE's internal cloning.
+     */
+    public function applyArsenalBonus($attackPct, $shieldPct, $armourPct)
+    {
+        $attackPct = (float)$attackPct;
+        $shieldPct = (float)$shieldPct;
+        $armourPct = (float)$armourPct;
+
+        $this->arsenalAttackPct = $attackPct;
+        $this->arsenalShieldPct = $shieldPct;
+        $this->arsenalArmourPct = $armourPct;
+
+        $attackInc = 1 + $attackPct / 100;
+        $shieldInc = 1 + $shieldPct / 100;
+        $armourInc = 1 + $armourPct / 100;
+
+        $this->singlePower *= $attackInc;
+        $this->fullPower *= $attackInc;
+
+        $this->singleShield *= $shieldInc;
+        $this->fullShield *= $shieldInc;
+        $this->currentShield *= $shieldInc;
+
+        $this->singleLife *= $armourInc;
+        $this->fullLife *= $armourInc;
+        $this->currentLife *= $armourInc;
     }
 
 
@@ -504,6 +541,10 @@ class ShipType extends Type
     {
         $class = get_class($this);
         $tmp = new $class($this->getId(), $this->getCount(), $this->rf, $this->originalShield, $this->cost, $this->originalPower, $this->weapons_tech, $this->shields_tech, $this->armour_tech);
+        if ($this->arsenalAttackPct != 0 || $this->arsenalShieldPct != 0 || $this->arsenalArmourPct != 0)
+        {
+            $tmp->applyArsenalBonus($this->arsenalAttackPct, $this->arsenalShieldPct, $this->arsenalArmourPct);
+        }
         $tmp->currentShield = $this->currentShield;
         $tmp->currentLife = $this->currentLife;
         $tmp->lastShots = $this->lastShots;

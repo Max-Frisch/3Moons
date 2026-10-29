@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **6** (`install/migrations/migration_6.sql`).
+- DB schema is now revision **7** (`install/migrations/migration_7.sql`).
 
 ## Completed this session
 
@@ -31,8 +31,9 @@
     account-editor POST rows.
   - Replaced PHP 8.2-deprecated `utf8_encode` / `utf8_decode` with
     `mb_convert_encoding()` in message read/write.
-- Extended `tools/smoke.sh` to 94 pages, including achievements, academy, invalid-input
-  and admin subpage regressions. `ADMIN=1 tools/smoke.sh` passes **94/94**.
+- Extended `tools/smoke.sh` to 98 pages, including achievements, academy,
+  arsenal, market, invalid-input and admin subpage regressions.
+  `ADMIN=1 tools/smoke.sh` passes **98/98**.
 - P2 Senate completion (Achievements + AP + governator scaling):
   - Added the 47-definition achievement catalog, per-user progress table,
     reward curves, system messages and the `page=achievements` UI.
@@ -67,11 +68,45 @@
   - Added `tests/academy_math.php` (55 checks) for the catalog, anchors,
     prerequisites, affordability and effect aggregation.
 
+- P4 Arsenal and Market:
+  - Ported the captured 19-upgrade catalog, per-activation values, 10/50/250k
+    fleet-point tiers, light/medium/heavy drop pools, flat 10% combat-win drop
+    chance, activation chances (100% first 10, -2%/success, 75% floor,
+    -10% value on failure).
+  - Added `account_upgrades`, `upgrade_items`, `market_lots`,
+    `market_purchases`, plus `users.arsenal_found` / `arsenal_activated`
+    (migration 7) and `page=arsenal` / `page=market`.
+  - Market supports listing 1-25 drawings at an Antimatter unit rate, buying,
+    cancelling own lots and 72h expiry with automatic returns. Buy/remove/expire
+    use locked transactions.
+  - Expedition case-4 combat wins now roll one drawing: tier comes from the sent
+    fleet's metal+crystal hull value; the item lands in the inventory and writes
+    `arsenal_found`.
+  - Combat wiring: OPBE applies each unit's primary weapon class, armour class
+    and shield class upgrades additively to attack/shield/hull; engine upgrades
+    scale the matching ship speed; production upgrades 17/18/19 add to the
+    matching metal/crystal/deuterium mine output. Conveyors 14/15/16 remain
+    catalog-only until the conveyor buildings (71-73) land in P7.
+  - Achievements `Upgrade finder` / `Upgrade engeneer` now consume the two new
+    counters.
+  - Added `tests/arsenal_math.php` (48 checks) for catalog, tiers, drop pools,
+    activation chances and per-unit class bonus aggregation.
+
 ## Manual verification done
 
-- `ADMIN=1 tools/smoke.sh`: 94/94 pass.
+- `ADMIN=1 tools/smoke.sh`: 98/98 pass.
 - `docker compose exec -T web php tests/achievements_math.php`: 14/14 pass.
 - `docker compose exec -T web php tests/academy_math.php`: 55/55 pass.
+- `docker compose exec -T web php tests/arsenal_math.php`: 48/48 pass.
+- Arsenal activation: two light-armour activations reached level 2 / +1.2%,
+  consumed both drawings and wrote `arsenal_activated = 2`.
+- Market: listed 1 laser drawing at 700 Antimatter (seller inventory dropped),
+  a second account bought it (buyer -700, seller +700, drawing transferred,
+  purchase row written), self-buy was rejected, remove returned the drawing and
+  a forced expired lot returned automatically on the next page load.
+- Expedition drop path exercised through `Arsenal::addItems()`: a tier-1 roll
+  returned code 1, the drawing landed in the inventory and `arsenal_found`
+  incremented.
 - Academy upgrade (`1101` target 5, then target 20 with 2 points): spent the
   affordable run, stopped at level 6 and wrote the partial notice.
 - Academy branch reset (50% free tier): returned 5 points and removed the rows.
@@ -100,7 +135,9 @@
   factors, per-level 1% effect step; achievement requirement steps and unit
   growth factors; reward curves calibrated against the live star badges in
   `HumanAIShare` (e.g. Metal Miner 26 = 6988, Terraformer 11 = 343,
-  Light defense 48 = 14102, Imperial fleet 21 = 56257).
+  Light defense 48 = 14102, Imperial fleet 21 = 56257). Arsenal catalog,
+  per-activation values, tier gates, drop pools, activation chances and unit
+  card classes are captured from the live pages/fixture.
 - **Reconstructed**: reward curves for achievements with no high-level star
   anchor (Raider, both daily Victory/expo, Moon destroyer, Mon maker,
   Victory Hostal, Fighter). These use category-typical growth and are marked in
@@ -110,12 +147,18 @@
     Veteran achievements show progress 0.
   - Daily wins/expo counters are not reset or tracked; only `users.wons` is
     wired (Raider/Fighter).
-  - Moon destroy/make, expedition total, DM-found and Arsenal upgrades have no
-    event counters yet (P4/P5/P7), so those misc achievements stay at 0.
+  - Moon destroy/make, expedition total and DM-found have no event counters yet
+    (P5/P7), so those misc achievements stay at 0. Arsenal found/activated now
+    feed Upgrade finder / Upgrade engeneer.
   - The following Niburu ids do not exist in the 3Moons catalog yet (P7), so
     their achievements cannot progress: conveyors 71-73; ships 221, 222 and
     225-228; defenses 412-419. Requirements are displayed with the captured
     names but progress remains 0.
+  - Arsenal combat attack uses each unit's **primary** weapon class only.
+    Multi-weapon units (213/216/225-228, 411-419) will need per-component
+    weapon classes in the P7 combat rework for exact numbers.
+  - Conveyor upgrades 14/15/16 are catalog/activation/market complete but have
+    no production effect yet because conveyor buildings 71-73 do not exist.
   - Academy skills without a modelled effect stay text-only: 1103/1108/1109/
     1110/1111 combat procs, 1208/1209/1210 defense/fusion/solar, 1304-1307/
     1309/1310 defense recovery/domes, 1303/1311 double-shield procs and 1308
@@ -128,13 +171,15 @@
 
 ## Start here next session
 
-**P4: Arsenal and Market** - 19-upgrade catalog, expedition finds, listing,
-auction lots and activation, then wire bonuses into combat/economy.
+**P5: Progression** - peaceful level curve, combat XP/battle level, Online
+Bonus (the main Academy-point source), premium page and the 24h new-account
+bonus. Peaceful/battle counters will also light up the General/Veteran
+achievements.
 
 B008 is still open and needs an exact page/SQL error.
 
-Then P5 progression (Online Bonus is the main source of Academy points),
-P6 black market/planetarium/collider, P7 catalog parity.
+Then P6 black market/planetarium/collider, P7 catalog/combat parity (including
+conveyor buildings 71-73 and multi-weapon attack components).
 
 ## Operational gotchas
 

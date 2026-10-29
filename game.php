@@ -33,6 +33,8 @@ $pageAliases = array(
 	'officer'	=> 'officier',
 	'officers'	=> 'officier',
 	'achievement'	=> 'achievements',
+	'upgrades'	=> 'arsenal',
+	'auction'	=> 'market',
 );
 if (isset($pageAliases[$page])) {
 	$page = $pageAliases[$page];

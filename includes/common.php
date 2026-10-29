@@ -125,6 +125,7 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 	require 'includes/classes/class.BuildFunctions.php';
 	require 'includes/classes/class.Achievements.php';
 	require 'includes/classes/class.Academy.php';
+	require 'includes/classes/class.Arsenal.php';
 	require 'includes/classes/class.PlanetRessUpdate.php';
 	
 	if(!AJAX_REQUEST && MODE === 'INGAME' && isModuleAvailable(MODULE_FLEET_EVENTS)) {

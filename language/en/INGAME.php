@@ -80,6 +80,8 @@ $LNG['lm_resources']						= 'Resources';
 $LNG['lm_officiers']						= 'Officers';
 $LNG['lm_achievements']						= 'Achievements';
 $LNG['lm_academy']							= 'Academy';
+$LNG['lm_arsenal']							= 'Arsenal';
+$LNG['lm_market']							= 'Market';
 $LNG['lm_trader']							= 'Market';
 $LNG['lm_fleettrader']						= 'Merchant of Fleets';
 $LNG['lm_technology']						= 'Technologies';
@@ -551,6 +553,56 @@ $LNG['acad_err_level']					= 'That level is already reached.';
 $LNG['acad_err_empty']					= 'Nothing to reset in this branch.';
 $LNG['acad_err_antimatter']				= 'Not enough Antimatter.';
 $LNG['acad_err_darkmatter']				= 'Not enough Dark Matter.';
+
+//----------------------------------------------------------------------------//
+// Arsenal and upgrade market
+
+$LNG['ars_group_weapon']					= 'Weapon';
+$LNG['ars_group_armor']						= 'Armour';
+$LNG['ars_group_shield']					= 'Shield';
+$LNG['ars_group_engine']					= 'Engine';
+$LNG['ars_group_conveyor']					= 'Conveyor';
+$LNG['ars_group_production']				= 'Production';
+$LNG['ars_bonus']							= 'Bonus:';
+$LNG['ars_level']							= 'Level';
+$LNG['ars_available']						= 'Available:';
+$LNG['ars_absent']							= 'Absent';
+$LNG['ars_activate']						= 'Activate';
+$LNG['ars_found']							= 'Upgrades found';
+$LNG['ars_activated']						= 'Upgrades activated';
+$LNG['ars_notice_success']					= 'Activated %s: now level %d, total bonus +%s%%.';
+$LNG['ars_notice_failure']					= 'Activation of %s failed (chance %s%%); the drawing is consumed and the last gain is reduced by 10%%.';
+$LNG['ars_err_unknown']						= 'Unknown upgrade.';
+$LNG['ars_err_items']						= 'No un-activated drawing of that upgrade is available.';
+$LNG['ars_expo_found']						= 'The expedition found an Arsenal drawing: %s.';
+
+$LNG['market_current']						= 'Market';
+$LNG['market_your']							= 'Your Auctions';
+$LNG['market_sell']							= 'Sell Upgrades';
+$LNG['market_sell_submit']					= 'Sell Upgrade';
+$LNG['market_id']							= 'ID';
+$LNG['market_upgrade']						= 'Upgrade';
+$LNG['market_amount']						= 'Amount';
+$LNG['market_total']						= 'Total price';
+$LNG['market_price']						= 'Price';
+$LNG['market_rate']							= 'Price per unit (Antimatter)';
+$LNG['market_choose']						= 'Upgrade';
+$LNG['market_buy']							= 'Buy';
+$LNG['market_remove']						= 'Remove';
+$LNG['market_empty']						= 'No lots on the market.';
+$LNG['market_no_own']						= 'You have no active auctions.';
+$LNG['market_lot_hours']					= 'Lots expire after %d hours and return the drawings.';
+$LNG['market_notice_listed']				= 'Listed %d drawing(s) for %s Antimatter.';
+$LNG['market_notice_bought']				= 'Bought %d x %s for %s Antimatter.';
+$LNG['market_notice_removed']				= 'Removed the auction; %d drawing(s) returned.';
+$LNG['market_err_invalid']					= 'Invalid amount or price.';
+$LNG['market_err_items']					= 'You do not hold that many drawings.';
+$LNG['market_err_missing']					= 'That lot no longer exists.';
+$LNG['market_err_expired']					= 'That lot has expired.';
+$LNG['market_err_own']						= 'You cannot buy your own lot.';
+$LNG['market_err_antimatter']				= 'Not enough Antimatter.';
+$LNG['market_err_unknown']					= 'Unknown upgrade or request.';
+
 //----------------------------------------------------------------------------//
 // Mercado
 

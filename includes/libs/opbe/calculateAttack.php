@@ -83,7 +83,7 @@ function calculateAttack(&$attackers, &$defenders, $FleetTF, $DefTF)
         {
             if (empty($amount))
                 continue;
-            $shipType = getShipType($element, $amount);
+            $shipType = getShipType($element, $amount, $player);
             $attackerFleetObj->addShipType($shipType);
         }
         $attackerPlayerObj->addFleet($attackerFleetObj);
@@ -102,7 +102,7 @@ function calculateAttack(&$attackers, &$defenders, $FleetTF, $DefTF)
         {
             if (empty($amount))
                 continue;
-            $shipType = getShipType($element, $amount);
+            $shipType = getShipType($element, $amount, $player);
             $defenderFleetObj->addShipType($shipType);
         }
         $defenderPlayerObj->addFleet($defenderFleetObj);
@@ -301,7 +301,7 @@ function updatePlayers(PlayerGroup $playerGroup, &$players)
  * @param int $count
  * @return a Ship or Defense instance
  */
-function getShipType($id, $count)
+function getShipType($id, $count, $player = null)
 {
     $CombatCaps = $GLOBALS['CombatCaps'];
     $pricelist = $GLOBALS['pricelist'];
@@ -311,9 +311,20 @@ function getShipType($id, $count)
     $power = $CombatCaps[$id]['attack'];
     if ($id > ID_MIN_SHIPS && $id < ID_MAX_SHIPS)
     {
-        return new Ship($id, $count, $rf, $shield, $cost, $power);
+        $shipType = new Ship($id, $count, $rf, $shield, $cost, $power);
     }
-    return new Defense($id, $count, $rf, $shield, $cost, $power);
+    else
+    {
+        $shipType = new Defense($id, $count, $rf, $shield, $cost, $power);
+    }
+
+    if ($player !== null && isset($player['factor']['Arsenal'][$id]))
+    {
+        $bonus = $player['factor']['Arsenal'][$id];
+        $shipType->applyArsenalBonus($bonus['Attack'], $bonus['Shield'], $bonus['Defensive']);
+    }
+
+    return $shipType;
 }
 
 

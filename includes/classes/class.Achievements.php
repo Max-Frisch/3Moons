@@ -261,8 +261,8 @@ class Achievements
         $stats['hostal_wins_total'] = 0;
         $stats['expo_total'] = 0;
         $stats['dm_found'] = 0;
-        $stats['upgrades_found'] = 0;
-        $stats['upgrades_activated'] = 0;
+        $stats['upgrades_found'] = isset($USER['arsenal_found']) ? (float)$USER['arsenal_found'] : 0;
+        $stats['upgrades_activated'] = isset($USER['arsenal_activated']) ? (float)$USER['arsenal_activated'] : 0;
 
         return $stats;
     }

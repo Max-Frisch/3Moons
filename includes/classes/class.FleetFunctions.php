@@ -61,6 +61,15 @@ class FleetFunctions
 			break;
 		}
 
+		if($speed > 0 && isset($Player['id']))
+		{
+			$enginePct	= Arsenal::enginePercent(Arsenal::getOwned($Player['id']), $Ship);
+			if($enginePct > 0)
+			{
+				$speed	*= 1 + $enginePct / 100;
+			}
+		}
+
 		return $speed;
 	}
 	
