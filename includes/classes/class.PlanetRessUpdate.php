@@ -686,7 +686,8 @@ class ResourceUpdate
 			':b_tech'				=> $USER['b_tech'],
 			':b_tech_id'			=> $USER['b_tech_id'],
 			':b_tech_planet'		=> $USER['b_tech_planet'],
-			':b_tech_queue'			=> $USER['b_tech_queue']
+			':b_tech_queue'			=> $USER['b_tech_queue'],
+			':collider_dm_at'		=> isset($USER['collider_dm_at']) ? $USER['collider_dm_at'] : 0
 		);
 
 		if (!empty($this->Builded))
@@ -740,7 +741,8 @@ class ResourceUpdate
 		u.b_tech			= :b_tech,
 		u.b_tech_id			= :b_tech_id,
 		u.b_tech_planet		= :b_tech_planet,
-		u.b_tech_queue		= :b_tech_queue
+		u.b_tech_queue		= :b_tech_queue,
+		u.collider_dm_at		= :collider_dm_at
 		'.implode("\n", $buildQueries).'
 		WHERE p.id = :planetId AND u.id = :userId;';
 

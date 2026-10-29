@@ -5,6 +5,7 @@
 
 	<div class="menu_content_left">
 		{if isModuleAvailable($smarty.const.MODULE_BUILDING)}<a href="game.php?page=buildings">{$LNG.lm_buildings}</a>{/if}
+		{if $isMoon}<a href="game.php?page=kollaider">{$LNG.lm_collider}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_RESEARCH)}<a href="game.php?page=research">{$LNG.lm_research}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_SHIPYARD_FLEET)}<a href="game.php?page=shipyard&amp;mode=fleet">{$LNG.lm_shipshard}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_SHIPYARD_DEFENSIVE)}<a href="game.php?page=shipyard&amp;mode=defense">{$LNG.lm_defenses}</a>{/if}
@@ -15,6 +16,7 @@
 		<a href="game.php?page=market">{$LNG.lm_market}</a>
 		<a href="game.php?page=bonus">{$LNG.lm_bonus}</a>
 		<a href="game.php?page=premium">{$LNG.lm_premium}</a>
+		<a href="game.php?page=port">{$LNG.lm_blackmarket}</a>
 		{if isModuleAvailable($smarty.const.MODULE_FLEET_TRADER)}<a href="game.php?page=fleetDealer">{$LNG.lm_fleettrader}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_TRADER)}<a href="game.php?page=fleetTable">{$LNG.lm_fleet}</a>{/if}
 		{if isModuleAvailable($smarty.const.MODULE_RESSOURCE_LIST)}<a href="game.php?page=resources">{$LNG.lm_resources}</a>{/if}

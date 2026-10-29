@@ -262,6 +262,13 @@ class ShowFleetStep3Page extends AbstractGamePage
 		
 		$availableMissions		= FleetFunctions::GetFleetMissions($USER, $MisInfo, $targetPlanetData);
 		
+		if (in_array($targetMission, array(1, 2, 9)) && (int)$PLANET['attack_locked_until'] > TIMESTAMP) {
+			$this->printMessage($LNG['bm_attack_locked'], array(array(
+				'label'	=> $LNG['sys_back'],
+				'url'	=> 'game.php?page=fleetTable'
+			)));
+		}
+
 		if (!in_array($targetMission, $availableMissions['MissionSelector'])) {
 			$this->printMessage($LNG['fl_invalid_mission'], array(array(
 				'label'	=> $LNG['sys_back'],

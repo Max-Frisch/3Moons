@@ -24,7 +24,7 @@
 							<h2 id="traderHead"></h2>
 							<p>{$LNG.ft_count}: <input type="text" id="count" name="count" onkeyup="Total();"><button onclick="MaxShips();return false;">{$LNG.ft_max}</button></p>
 							<p>{$LNG.tech.901}: <span class="res_901_text" id="metal" style="font-weight:800;"></span> &bull; {$LNG.tech.902}: <span class="res_902_text" id="crystal" style="font-weight:800;"></span> &bull; {$LNG.tech.903}: <span class="res_903_text" id="deuterium" style="font-weight:800;"></span> &bull; {$LNG.tech.921}: <span class="res_921_text" id="darkmatter" style="font-weight:800;"></span></p>
-							<p>{$LNG.ft_total}: {$LNG.tech.901}: <span class="res_901_text" id="total_metal" style="font-weight:800;"></span> &bull; {$LNG.tech.902}: <span class="res_902_text" id="total_crystal" style="font-weight:800;"></span> &bull; {$LNG.tech.903} <span class="res_903_text" id="total_deuterium" style="font-weight:800;"></span> &bull; {$LNG.tech.921}: <span class="res_921_text" id="total_darkmatter" style="font-weight:800;"></span></�>
+							<p>{$LNG.ft_total}: {$LNG.tech.901}: <span class="res_901_text" id="total_metal" style="font-weight:800;"></span> &bull; {$LNG.tech.902}: <span class="res_902_text" id="total_crystal" style="font-weight:800;"></span> &bull; {$LNG.tech.903} <span class="res_903_text" id="total_deuterium" style="font-weight:800;"></span> &bull; {$LNG.tech.921}: <span class="res_921_text" id="total_darkmatter" style="font-weight:800;"></span></p>
 							<p><input type="submit" value="{$LNG.ft_absenden}"></p>
 							<p>{$LNG.ft_charge}: {$Charge}%</p>
 						</div>

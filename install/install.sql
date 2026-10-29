@@ -228,7 +228,7 @@ CREATE TABLE `%PREFIX%config` (
   `ga_key` varchar(42) NOT NULL DEFAULT '',
   `moduls` varchar(100) NOT NULL DEFAULT '',
   `trade_allowed_ships` varchar(255) NOT NULL DEFAULT '202,401',
-  `trade_charge` varchar(5) NOT NULL DEFAULT '30',
+  `trade_charge` varchar(5) NOT NULL DEFAULT '50',
   `chat_closed` tinyint(1) NOT NULL DEFAULT '0',
   `chat_allowchan` tinyint(1) NOT NULL DEFAULT '1',
   `chat_allowmes` tinyint(1) NOT NULL DEFAULT '1',
@@ -259,12 +259,12 @@ CREATE TABLE `%PREFIX%config` (
   `max_overflow` float(2,1) NOT NULL DEFAULT '1.0',
   `moon_factor` float(2,1) NOT NULL DEFAULT '1.0',
   `moon_chance` tinyint(3) unsigned NOT NULL DEFAULT '20',
-  `darkmatter_cost_trader` int(11) unsigned NOT NULL DEFAULT '750',
+  `darkmatter_cost_trader` int(11) unsigned NOT NULL DEFAULT '250',
   `factor_university` tinyint(3) unsigned NOT NULL DEFAULT '8',
   `max_fleets_per_acs` tinyint(3) unsigned NOT NULL DEFAULT '16',
   `debris_moon` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `vmode_min_time` int(11) NOT NULL DEFAULT '172800',
-  `gate_wait_time` int(11) NOT NULL DEFAULT '3600',
+  `gate_wait_time` int(11) NOT NULL DEFAULT '2400',
   `metal_start` double(255,0) unsigned NOT NULL DEFAULT '500',
   `crystal_start` double(255,0) unsigned NOT NULL DEFAULT '500',
   `deuterium_start` double(255,0) unsigned NOT NULL DEFAULT '0',
@@ -575,6 +575,10 @@ CREATE TABLE `%PREFIX%planets` (
   `der_metal` double(255,0) unsigned NOT NULL DEFAULT '0',
   `der_crystal` double(255,0) unsigned NOT NULL DEFAULT '0',
   `id_luna` int(11) NOT NULL DEFAULT '0',
+  `kollaider` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `fields_bought` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `last_relocation` int(11) unsigned NOT NULL DEFAULT '0',
+  `attack_locked_until` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `id_luna` (`id_luna`),
   KEY `id_owner` (`id_owner`),
@@ -809,6 +813,7 @@ CREATE TABLE `%PREFIX%users` (
   `combat_xp` bigint(20) unsigned NOT NULL DEFAULT '0',
   `bonus_button_ready_at` int(11) unsigned NOT NULL DEFAULT '0',
   `bonus_last_click_at` int(11) unsigned NOT NULL DEFAULT '0',
+  `collider_dm_at` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `authlevel` (`authlevel`),
   KEY `ref_bonus` (`ref_bonus`),
@@ -883,6 +888,20 @@ CREATE TABLE `%PREFIX%premium_bonuses` (
   KEY `expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+CREATE TABLE `%PREFIX%vouchers` (
+  `code` varchar(64) NOT NULL,
+  `reward_metal` double(255,0) unsigned NOT NULL DEFAULT '0',
+  `reward_crystal` double(255,0) unsigned NOT NULL DEFAULT '0',
+  `reward_deuterium` double(255,0) unsigned NOT NULL DEFAULT '0',
+  `reward_darkmatter` double(255,0) unsigned NOT NULL DEFAULT '0',
+  `reward_antimatter` double(255,0) unsigned NOT NULL DEFAULT '0',
+  `max_uses` int(11) unsigned NOT NULL DEFAULT '1',
+  `uses` int(11) unsigned NOT NULL DEFAULT '0',
+  `expires_at` int(11) unsigned NOT NULL DEFAULT '0',
+  `created_at` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%PREFIX%users_to_acs` (
   `userID` int(10) unsigned NOT NULL,

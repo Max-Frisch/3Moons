@@ -84,6 +84,8 @@ $LNG['lm_arsenal']							= 'Arsenal';
 $LNG['lm_market']							= 'Market';
 $LNG['lm_bonus']							= 'Online Bonus';
 $LNG['lm_premium']							= 'Premium';
+$LNG['lm_blackmarket']						= 'Black market';
+$LNG['lm_collider']							= 'Collider';
 $LNG['lm_trader']							= 'Market';
 $LNG['lm_fleettrader']						= 'Merchant of Fleets';
 $LNG['lm_technology']						= 'Technologies';
@@ -255,6 +257,8 @@ $LNG['lv_technology']						= 'Technologies';
 $LNG['lv_ships']							= 'Ships';
 $LNG['lv_defenses']							= 'Defenses';
 $LNG['lv_total']							= 'Total';
+$LNG['lv_production']						= 'Production per hour';
+$LNG['lv_all']							= 'All';
 
 //----------------------------------------------------------------------------//
 // Fleet
@@ -621,6 +625,59 @@ $LNG['tr_resource']							= 'Resource';
 $LNG['tr_amount']							= 'Amount';
 $LNG['tr_quota_exchange']					= 'Fee';
 $LNG['tr_exchange']							= 'Trade';
+
+
+//----------------------------------------------------------------------------//
+// Black market / Planetarium / Collider / Vouchers
+$LNG['bm_resource_trader']					= 'Resource Trader';
+$LNG['bm_resource_trader_desc']				= 'Trade resources from one type to another.';
+$LNG['bm_merchant']							= 'Merchant of Fleets';
+$LNG['bm_merchant_desc']					= 'Scrap old ships and defenses for resources.';
+$LNG['bm_planetarium']						= 'Planetarium';
+$LNG['bm_planetarium_desc']					= 'Increase field count and teleport your planet.';
+$LNG['bm_buildings_market']					= 'Buildings Market';
+$LNG['bm_buildings_market_desc']			= 'Build buildings instantly with Dark Matter.';
+$LNG['bm_technology_market']				= 'Technology Market';
+$LNG['bm_technology_market_desc']			= 'Research technologies instantly with Dark Matter.';
+$LNG['bm_voucher']							= 'Voucher System';
+$LNG['bm_voucher_desc']						= 'If you have an active voucher code, redeem it here for its reward. Voucher codes are given for events and bug rewards.';
+$LNG['bm_voucher_code']					= 'Voucher Code';
+$LNG['bm_redeem']							= 'Redeem';
+$LNG['bm_done']								= 'Done.';
+$LNG['bm_darkmatter']						= 'Dark Matter';
+$LNG['bm_antimatter']						= 'Antimatter';
+$LNG['bm_antimatter_have']					= 'available';
+$LNG['bm_building']						= 'Building';
+$LNG['bm_technology']						= 'Technology';
+$LNG['bm_level']							= 'Level';
+$LNG['bm_next_level']					= 'Next level';
+$LNG['bm_price']							= 'Resource cost';
+$LNG['bm_buy']								= 'Buy';
+$LNG['bm_buy_fields']						= 'Buy fields';
+$LNG['bm_teleport']						= 'Teleport';
+$LNG['bm_fields']						= 'Fields';
+$LNG['bm_field_free']					= 'Free fields';
+$LNG['bm_fields_bought']					= 'Fields bought';
+$LNG['bm_celestial']					= 'Celestial';
+$LNG['bm_coords']						= 'Coordinates';
+$LNG['bm_collider']						= 'Collider';
+$LNG['bm_collider_desc']					= 'After years of antimatter research, scientists can break antimatter to create Dark Matter. The Collider is built on a moon because its operation would destroy a planet atmosphere.';
+$LNG['bm_collider_production']			= 'Current production';
+$LNG['bm_collider_next']				= 'Production at next level';
+$LNG['bm_collider_cost']				= 'Antimatter cost';
+$LNG['bm_collider_moon_only']			= 'The Collider can only be built on a moon.';
+$LNG['bm_attack_locked']				= 'You cannot attack from this planet yet because it was just relocated.';
+$LNG['bm_error']						= array(
+	'unavailable' => 'This action is not available.',
+	'maxlevel' => 'This is already at its maximum level.',
+	'nofields' => 'There are not enough free fields on this planet.',
+	'darkmatter' => 'Not enough Dark Matter.',
+	'antimatter' => 'Not enough Antimatter.',
+	'target' => 'Invalid target coordinates.',
+	'cooldown' => 'You can only teleport out of the system once per hour.',
+	'occupied' => 'The target position is already occupied.',
+	'voucher' => 'This voucher code is invalid, used up or expired.',
+);
 
 //----------------------------------------------------------------------------//
 // Tecnologia

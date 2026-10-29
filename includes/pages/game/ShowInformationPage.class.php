@@ -27,9 +27,13 @@ class ShowInformationPage extends AbstractGamePage
 		parent::__construct();
 	}
 
-	static function getNextJumpWaitTime($lastTime)
+	static function getNextJumpWaitTime($lastTime, $level = 1)
 	{
-		return $lastTime + Config::get()->gate_wait_time;
+		$base = max(1, (int)Config::get()->gate_wait_time);
+		$level = max(1, (int)$level);
+		// Live Jumpgate recharge is 2400s at L1 and x0.75 per level
+		// (L2 = 30 min, L6 ~= 9m30s).
+		return $lastTime + max(1, (int)round($base * pow(0.75, $level - 1)));
 	}
 
 	public function sendFleet()
@@ -38,7 +42,14 @@ class ShowInformationPage extends AbstractGamePage
 
 		$db = Database::get();
 
-		$NextJumpTime = self::getNextJumpWaitTime($PLANET['last_jump_time']);
+		if ((int)$PLANET['planet_type'] !== 3 || (int)$PLANET[$resource[43]] < 1) {
+			$this->sendJSON(array(
+				'message' => $LNG['in_jump_gate_doesnt_have_one'],
+				'error' => true
+			));
+		}
+
+		$NextJumpTime = self::getNextJumpWaitTime($PLANET['last_jump_time'], $PLANET[$resource[43]]);
 
 		if (TIMESTAMP < $NextJumpTime)
 		{
@@ -50,7 +61,7 @@ class ShowInformationPage extends AbstractGamePage
 
 		$TargetPlanet = HTTP::_GP('jmpto', (int) $PLANET['id']);
 
-		$sql = "SELECT id, last_jump_time FROM %%PLANETS%% WHERE id = :targetID AND id_owner = :userID AND sprungtor > 0;";
+		$sql = "SELECT id, last_jump_time, sprungtor FROM %%PLANETS%% WHERE id = :targetID AND id_owner = :userID AND sprungtor > 0;";
 		$TargetGate = $db->selectSingle($sql, array(
 			':targetID' => $TargetPlanet,
 			':userID'   => $USER['id']
@@ -64,7 +75,7 @@ class ShowInformationPage extends AbstractGamePage
 			));
 		}
 
-		$NextJumpTime   = self::getNextJumpWaitTime($TargetGate['last_jump_time']);
+		$NextJumpTime   = self::getNextJumpWaitTime($TargetGate['last_jump_time'], $TargetGate['sprungtor']);
 
 		if (TIMESTAMP < $NextJumpTime)
 		{
@@ -113,7 +124,7 @@ class ShowInformationPage extends AbstractGamePage
 		));
 
 		$PLANET['last_jump_time'] 	= TIMESTAMP;
-		$NextJumpTime	= self::getNextJumpWaitTime($PLANET['last_jump_time']);
+		$NextJumpTime	= self::getNextJumpWaitTime($PLANET['last_jump_time'], $PLANET[$resource[43]]);
 		$this->sendJSON(array(
 			'message' => sprintf($LNG['in_jump_gate_done'], pretty_time($NextJumpTime - TIMESTAMP)),
 			'error' => false
@@ -188,7 +199,7 @@ class ShowInformationPage extends AbstractGamePage
 		$moonList	= array();
 
 		foreach($moonResult as $moonRow) {
-			$NextJumpTime				= self::getNextJumpWaitTime($moonRow['last_jump_time']);
+			$NextJumpTime				= self::getNextJumpWaitTime($moonRow['last_jump_time'], $moonRow[$resource[43]]);
 			$moonList[$moonRow['id']]	= '['.$moonRow['galaxy'].':'.$moonRow['system'].':'.$moonRow['planet'].'] '.$moonRow['name'].(TIMESTAMP < $NextJumpTime ? ' ('.pretty_time($NextJumpTime - TIMESTAMP).')':'');
 		}
 
@@ -334,7 +345,7 @@ class ShowInformationPage extends AbstractGamePage
 		if($elementID == 43 && $PLANET[$resource[43]] > 0)
 		{
 			$this->tplObj->loadscript('gate.js');
-			$nextTime	= self::getNextJumpWaitTime($PLANET['last_jump_time']);
+			$nextTime	= self::getNextJumpWaitTime($PLANET['last_jump_time'], $PLANET[$resource[43]]);
 			$gateData	= array(
 				'nextTime'	=> _date($LNG['php_tdformat'], $nextTime, $USER['timezone']),
 				'restTime'	=> max(0, $nextTime - TIMESTAMP),

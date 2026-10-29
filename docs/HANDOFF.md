@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **8** (`install/migrations/migration_8.sql`).
+- DB schema is now revision **9** (`install/migrations/migration_9.sql`).
 
 ## Completed this session
 
@@ -120,6 +120,42 @@
   - Added `tests/progression_math.php` (63 checks) for curve anchors, battle
     thresholds, combat XP, bonus payout and the premium cost model.
 
+
+- P6 Black market, Planetarium, Collider, Empire and Jumpgate:
+  - `page=port` is the live six-tile Black market hub (Resource Trader,
+    Merchant of Fleets, Planetarium, Buildings Market, Technology Market,
+    Voucher System); the existing trader/merchant pages are reused.
+  - Merchant defaults now match the captured `merchant_rate = 50%`; the
+    Resource Trader fee is 250 DM and the M:C:D ratio remains 1:2:4.
+  - `page=dmbuild` / `page=dmtech` buy one instant building/research level for
+    `ceil((metal+crystal+deuterium)/1000)` Dark Matter. Prerequisites, max
+    levels and planet fields are enforced; queues are not touched.
+  - `page=reward2` is a real voucher redemption backed by `vouchers`
+    (code, resources/currencies, max uses, expiry, single-use locking). Codes
+    are issued out-of-band by SQL/admin.
+  - `page=planet` (Planetarium) buys fields with the captured geometric curve
+    (`200 * 1.1^n`), tracks `fields_bought`, and teleports planets using
+    `15000/1000/2500` DM per galaxy/system/position. Inter-system moves are
+    limited to one per hour, same-system moves are unlimited, the destination
+    must be empty, the moon follows its planet and a 15-minute attack lock is
+    written (`attack_locked_until`).
+  - `page=kollaider` is a moon-only Collider (sprite 69) bought with
+    Antimatter (`round(850 * 1.35^(L-1))`). Captured DM/h anchors are
+    4,752 / 10,454 / 17,250; the provisional quadratic extrapolates above L3.
+    Production is accrued account-wide per request into `users.darkmatter`
+    (skipped in vacation mode) and applies the combat-level +3%/level and
+    premium `prem_prod_from_colly` multipliers.
+  - `page=imperium` now shows every owned celestial in creation order with
+    resources, hourly production (including Collider DM/h), fields, all 25+
+    building rows, ships, defenses, Sigma totals and All/Building/Fleet/Defense
+    filters.
+  - Jumpgate recharge is now level-scaled: `gate_wait_time * 0.75^(L-1)`
+    (live L1 40 min, L2 30 min, L6 ~9m30s), checked on both the source and
+    target gates. The source moon must have a gate. Mission 1/2/9 from a
+    recently teleported planet is blocked by the attack lock.
+  - Added `tests/blackmarket_math.php` (34 checks) and `tests/collider_math.php`
+    (17 checks).
+
 ## Manual verification done
 
 - `ADMIN=1 tools/smoke.sh`: 98/98 pass.
@@ -127,7 +163,9 @@
 - `docker compose exec -T web php tests/academy_math.php`: 55/55 pass.
 - `docker compose exec -T web php tests/arsenal_math.php`: 48/48 pass.
 - `docker compose exec -T web php tests/progression_math.php`: 63/63 pass.
-- `ADMIN=1 tools/smoke.sh`: 100/100 pass (adds bonus + premium).
+- `docker compose exec -T web php tests/blackmarket_math.php`: 34/34 pass.
+- `docker compose exec -T web php tests/collider_math.php`: 17/17 pass.
+- `ADMIN=1 tools/smoke.sh`: 107/107 pass (adds port, dmbuild, dmtech, planet, reward2, kollaider, collider).
 - Online Bonus claim: admin level 0 paid 7,000 DM + 1 Academy point and added
   424 peaceful seconds; the cooldown was written.
 - Premium purchase: 1% storage for 1 day cost 1 Antimatter, wrote the row and
@@ -167,6 +205,22 @@
   by 48 hours.
 - Achievement level-up wrote a type-4 system message
   (`Reached: ... Received: ... Antimatter and ... Achievement Points`).
+- Collider: built level 1 on a test moon for 850 Antimatter; one hour of
+  elapsed production added exactly 4,752 Dark Matter and advanced
+  `collider_dm_at`; the Empire matrix showed 4,752 DM/h.
+- Buildings market: bought Moon base level 1 for 160 DM (level-1 cost); level
+  and `field_current` incremented. Technology market: bought Spy Tech 13->14
+  for 22,925 DM.
+- Planetarium: bought +2 fields for 420 DM (saved 411 after same-second
+  accrual); teleported 1:1:2 -> 1:1:3 (2,500 DM), the moon followed, the
+  attack lock was written and a second inter-system move was refused with the
+  cooldown; moving back within the same system was allowed.
+- Voucher: `TESTCODE` redeemed once for 123 DM / 7 Antimatter / resources, then
+  `uses` incremented and the code remained usable once more.
+- Jumpgate: at L1 with `last_jump_time = now-2000` the info card showed 400 s;
+  at L2 with `now-1200` it showed 600 s (2,400 s base x0.75).
+- Test moon/voucher and the admin DM/AM/fields/coordinates were restored after
+  verification.
 - No new lines in `includes/error.log`; no PHP warnings on the crawled pages.
 
 ## Data confidence / still not data-driven
@@ -208,18 +262,25 @@
     boosted local admin Terraformer (level 100) would otherwise generate an
     unrealistic AP total; the test admin was reset to Terraformer 20 for sane
     numbers.
+  - Collider production is captured only for levels 1-3; levels 4+ use the
+    provisional quadratic (547L^2 + 4061L + 144). The combat +3%/level and
+    premium `prem_prod_from_colly` multipliers are hooks, not yet captured.
+  - Planetarium relocation/fields are captured. The separate diameter upgrade
+    (100B metal + 50B crystal debris + 1 Stardust for +276..414 km / +12..18
+    fields) is not wired because 3Moons has no Stardust currency yet.
+  - Voucher codes have a working redemption path but no admin UI; issue them
+    with SQL into `vouchers` until the admin giveaway flow is extended.
 
 ## Start here next session
 
-**P6: Black market, Planetarium, Collider, Empire, Jumpgate** - merchant/DM
-build/vouchers, relocation/fields, moon collider, empire matrix and jumpgate
-parity. The Collider is the main DM source and should consume the premium
-`prem_prod_from_colly` value already stored by P5.
+**P7: catalog, combat and expedition parity** - conveyor buildings 71-73,
+missing Niburu ships/defenses, multi-weapon attack components, combat
+calibration and expedition tables. B008 is still open and needs an exact
+page/SQL error. Then P8 reskin/reports.
 
-B008 is still open and needs an exact page/SQL error.
-
-Then P7 catalog/combat parity (including conveyor buildings 71-73 and
-multi-weapon attack components), P8 reskin/reports.
+P6 follow-ups: multi-weapon Collider/Arsenal combat classes remain P7; the
+Planetarium diameter/Stardust sink is not wired because Stardust is not part
+of the 3Moons economy yet.
 
 ## Operational gotchas
 

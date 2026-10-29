@@ -126,6 +126,8 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 	require 'includes/classes/class.Achievements.php';
 	require 'includes/classes/class.Academy.php';
 	require 'includes/classes/class.Arsenal.php';
+	require 'includes/classes/class.BlackMarket.php';
+	require 'includes/classes/class.Collider.php';
 	require_once 'includes/classes/class.Progression.php';
 	require 'includes/classes/class.PlanetRessUpdate.php';
 	
@@ -199,6 +201,7 @@ if (MODE === 'INGAME' || MODE === 'ADMIN' || MODE === 'CRON')
 		
 		Progression::accrueOnlineTime($USER);
 		Progression::attachLevels($USER);
+		Collider::accrue($USER);
 
 		$USER['factor']		= getFactors($USER);
 		$USER['PLANETS']	= getPlanets($USER);

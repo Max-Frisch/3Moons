@@ -4,10 +4,11 @@ Status: `open`, `fixed`, `wontfix`, `needs-capture`.
 
 ## Current status (2026-10-29)
 
-`tools/smoke.sh` with `ADMIN=1`: **94/94 pages pass** (47 game + 47 admin).
-The P0 bug sweep is complete for the crawled game/admin GET surface, plus the
-admin global-message send and account-editor POST paths. Remaining known work
-is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
+`tools/smoke.sh` with `ADMIN=1`: **107/107 pages pass** (58 game + 49 admin).
+The P0-P6 bug/feature sweeps are complete for the crawled game/admin GET
+surface, plus the admin global-message send and account-editor POST paths.
+Remaining known work is feature-level (see `docs/PRIORITIES.md`), not
+page-breaking.
 
 ## Defects
 
@@ -45,6 +46,7 @@ is feature-level (see `docs/PRIORITIES.md`), not page-breaking.
 | B030 | fixed | Admin / accounteditor | POST with an unknown planet/user id 503s; resources log read `$before_dm['universe']` for a planet edit | Unguarded DB rows; wrong universe source | Guard every edited-row fetch and use the planet row's universe |
 | B031 | fixed | Admin / clearcache | Visiting `clearcache` (and every smoke run) deleted the tracked `cache/*/.gitkeep` files | `ClearCache()` removed every non-directory entry | Exclude `.gitkeep` from the cache clear |
 | B032 | fixed | Game / Senate | Governators were stuck at the 10% base; AP/DM prices used the old generic per-day values | `getFactors()` only added the base bonus and the old `UpdateExtra()` path had no level/AP model | Added achievements + AP, governator level columns, exact live AP/DM curves, `base + 1%/level` scaling and the `page=officier` governator panel |
+| B033 | fixed | Game / DB | New black market/collider queries matched nothing because `planet_type` is an `enum('1','3')` | Numeric comparisons such as `planet_type = 3` compare the enum index, not the string | Quote enum values (`planet_type = '3'`) in the Collider accrual and Planetarium queries |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

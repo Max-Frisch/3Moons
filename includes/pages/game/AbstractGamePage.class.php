@@ -161,6 +161,7 @@ abstract class AbstractGamePage
 			'hasBoard'			=> filter_var($config->forum_url, FILTER_VALIDATE_URL),
 			'hasAdminAccess'	=> !empty(Session::load()->adminAccess),
 			'hasGate'			=> $PLANET[$resource[43]] > 0,
+			'isMoon'			=> (int)$PLANET['planet_type'] === 3,
 			'username'			=> $USER['username'],
 			'previousPlanet'	=> !empty($previousPlanet['id']) ? $previousPlanet['id'] : '',
 			'nextPlanet'		=> !empty($nextPlanet['id']) ? $nextPlanet['id'] : '',

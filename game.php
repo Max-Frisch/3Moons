@@ -35,6 +35,7 @@ $pageAliases = array(
 	'achievement'	=> 'achievements',
 	'upgrades'	=> 'arsenal',
 	'auction'	=> 'market',
+	'collider'	=> 'kollaider',
 );
 if (isset($pageAliases[$page])) {
 	$page = $pageAliases[$page];
