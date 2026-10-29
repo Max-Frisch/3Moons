@@ -79,6 +79,7 @@ $LNG['lm_defenses']							= 'Defenses';
 $LNG['lm_resources']						= 'Resources';
 $LNG['lm_officiers']						= 'Officers';
 $LNG['lm_achievements']						= 'Achievements';
+$LNG['lm_academy']							= 'Academy';
 $LNG['lm_trader']							= 'Market';
 $LNG['lm_fleettrader']						= 'Merchant of Fleets';
 $LNG['lm_technology']						= 'Technologies';
@@ -505,6 +506,51 @@ $LNG['ach_governor_days']					= 'Days:';
 $LNG['ach_governor_hire']					= 'Hire';
 $LNG['ach_governor_active']					= 'Governor activated';
 
+
+//----------------------------------------------------------------------------//
+// Academy
+$LNG['acad_branch_attack']					= 'Attack';
+$LNG['acad_branch_economy']					= 'Economy';
+$LNG['acad_branch_defence']					= 'Defence';
+$LNG['acad_points']							= 'Academy Points';
+$LNG['acad_current']						= 'Current';
+$LNG['acad_next_cost']						= 'Next level:';
+$LNG['acad_upgrade']						= 'Learn';
+$LNG['acad_maxed']							= 'Max level reached';
+$LNG['acad_prereq_line']					= 'Requires %s level %d (current %d)';
+$LNG['acad_reset']						= 'Reset this branch:';
+$LNG['acad_reset_full']					= '100%% refund (%s Antimatter)';
+$LNG['acad_reset_partial']					= '75%% refund (%s Dark Matter)';
+$LNG['acad_reset_free']					= '50%% refund (free)';
+$LNG['acad_reset_confirm']				= 'Reset this branch?';
+$LNG['acad_attack']						= 'Attack';
+$LNG['acad_shield']						= 'Shields';
+$LNG['acad_hull']						= 'Armour';
+$LNG['acad_mine']						= 'mine extraction';
+$LNG['acad_energy']						= 'energy production';
+$LNG['acad_research']					= 'research time';
+$LNG['acad_storage']					= 'storage capacity';
+$LNG['acad_cargo']						= 'fleet cargo space';
+$LNG['acad_fleet_cost']					= 'fleet cost';
+$LNG['acad_fleet_speed']					= 'fleet speed';
+$LNG['acad_fuel']						= 'deuterium consumption';
+$LNG['acad_fleet_slot']					= 'fleet slots';
+$LNG['acad_irn']						= 'Intergalactic Research Network';
+$LNG['acad_planets']					= 'maximum planets';
+$LNG['acad_double_shield']				= 'double-shield chance';
+$LNG['acad_rf']							= 'rapid-fire resistance';
+$LNG['acad_effect_pct']					= '%s%% %s';
+$LNG['acad_effect_count']				= '%s %s';
+$LNG['acad_notice_upgraded']				= 'Skill raised to level %d for %s Academy points.';
+$LNG['acad_notice_partial']				= 'Points ran out: reached level %d of the requested %d for %s Academy points.';
+$LNG['acad_notice_reset']				= 'Branch reset: %d%% refunded, %s Academy points returned.';
+$LNG['acad_err_unknown']					= 'Unknown skill or request.';
+$LNG['acad_err_prereq']					= 'The prerequisite for this skill is not met yet.';
+$LNG['acad_err_points']					= 'Not enough Academy points.';
+$LNG['acad_err_level']					= 'That level is already reached.';
+$LNG['acad_err_empty']					= 'Nothing to reset in this branch.';
+$LNG['acad_err_antimatter']				= 'Not enough Antimatter.';
+$LNG['acad_err_darkmatter']				= 'Not enough Dark Matter.';
 //----------------------------------------------------------------------------//
 // Mercado
 
@@ -1215,6 +1261,7 @@ $LNG['bs_wait']   							= "Wait 10 seconds for the next simulation";
 $LNG['bs_acs_slot']   						= 'ACS-Slot';
 $LNG['bs_add_acs_slot']   					= 'Add ACS-Slot';
 $LNG['bs_reset']							= 'Reset';
+
 //----------------------------------------------------------------------------//
 // Mercador de Naves
 

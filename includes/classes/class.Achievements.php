@@ -404,13 +404,15 @@ class Achievements
         }
 
         if ($totalAM > 0 || $totalAP > 0) {
-            $db->update("UPDATE %%USERS%% SET achievement_points = achievement_points + :ap, antimatter = antimatter + :am WHERE id = :userId;", array(
+            $db->update("UPDATE %%USERS%% SET achievement_points = achievement_points + :ap, antimatter = antimatter + :am, academy_points = academy_points + :academyAp WHERE id = :userId;", array(
                 ':ap' => $totalAP,
+                ':academyAp' => $totalAP,
                 ':am' => $totalAM,
                 ':userId' => $USER['id'],
             ));
             $USER['achievement_points'] = (int)$USER['achievement_points'] + $totalAP;
             $USER['antimatter'] = (float)$USER['antimatter'] + $totalAM;
+            $USER['academy_points'] = (isset($USER['academy_points']) ? (int)$USER['academy_points'] : 0) + $totalAP;
 
             foreach ($awards as $award) {
                 $levelText = $award['from'] === $award['to'] ? (string)$award['to'] : $award['from'] . '-' . $award['to'];

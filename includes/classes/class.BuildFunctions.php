@@ -104,6 +104,15 @@ class BuildFunctions
             }
         }
 
+        if($forDestroy !== true && in_array($Element, $reslist['fleet'])) {
+            $discount = Academy::fleetCostReductionPct($USER) / 100;
+            if($discount > 0) {
+                foreach($price as $resType => $amount) {
+                    $price[$resType] = max(0, $amount * (1 - $discount));
+                }
+            }
+        }
+
         return $price;
     }
 
@@ -166,6 +175,8 @@ class BuildFunctions
                         $Level += $Levels;
                 }
             }
+
+            $Level += Academy::irnLevels($USER);
 
             $time	= $elementCost / (1000 * (1 + $Level)) / ($config->game_speed / 2500) * pow(1 - $config->factor_university / 100, $PLANET[$resource[6]]) * (1 + $USER['factor']['ResearchTime']);
         }

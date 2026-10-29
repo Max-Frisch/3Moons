@@ -15,13 +15,14 @@
  * @link https://github.com/jkroepke/2Moons
  */
 
-define('DB_VERSION_REQUIRED', 5);
+define('DB_VERSION_REQUIRED', 6);
 define('DB_NAME'			, $database['databasename']);
 define('DB_PREFIX'			, $database['tableprefix']);
 
 // Data Tabells
 $dbTableNames	= array(
 	'ACHIEVEMENTS'		=> DB_PREFIX.'achievements',
+	'ACADEMY'			=> DB_PREFIX.'academy',
 	'AKS'				=> DB_PREFIX.'aks',
 	'ALLIANCE'			=> DB_PREFIX.'alliance',
 	'ALLIANCE_RANK'		=> DB_PREFIX.'alliance_ranks',

@@ -40,6 +40,7 @@ GAME_PAGES=(
   "officier"
   "officier&mode=UpdateOfficier"
   "achievements"
+  "academy"
   "achievement"
   "achievements&group=daily"
   "achievements&group=build"

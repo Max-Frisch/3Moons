@@ -792,6 +792,8 @@ CREATE TABLE `%PREFIX%users` (
   `inactive_mail` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `achievement_points` int(11) unsigned NOT NULL DEFAULT '0',
   `achievement_points_spent` int(11) unsigned NOT NULL DEFAULT '0',
+  `academy_points` int(11) unsigned NOT NULL DEFAULT '0',
+  `academy_points_spent` int(11) unsigned NOT NULL DEFAULT '0',
   `antimatter` double(255,0) NOT NULL DEFAULT '0',
   `gov_level_701` smallint(5) unsigned NOT NULL DEFAULT '0',
   `gov_level_702` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -815,6 +817,13 @@ CREATE TABLE `%PREFIX%achievements` (
   `updated_at` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`userID`,`achievement`),
   KEY `achievement` (`achievement`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE `%PREFIX%academy` (
+  `userID` int(11) unsigned NOT NULL,
+  `skill` varchar(8) NOT NULL,
+  `level` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`userID`,`skill`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE `%PREFIX%users_to_acs` (

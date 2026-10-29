@@ -55,6 +55,8 @@ function getFactors($USER, $Type = 'basic', $TIME = NULL) {
 		}
 	}
 	
+	$factor	= Academy::applyFactors($USER, $factor);
+
 	return $factor;
 }
 

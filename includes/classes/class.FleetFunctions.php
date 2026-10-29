@@ -172,7 +172,8 @@ class FleetFunctions
 			$basicConsumption   = $ShipConsumption * $Count;
 			$consumption        += $basicConsumption * $MissionDistance / 35000 * (($spd / 10) + 1) * (($spd / 10) + 1);
 		}
-		return (round($consumption) + 1);
+		$fuelFactor	= max(0, 1 - Academy::fuelReductionPct($Player) / 100);
+		return (int)round((round($consumption) + 1) * $fuelFactor);
 	}
 
 	public static function GetFleetMissions($USER, $MisInfo, $Planet)
