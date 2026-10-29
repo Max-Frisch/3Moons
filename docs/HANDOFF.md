@@ -216,5 +216,5 @@ conveyor buildings 71-73 and multi-weapon attack components).
 
 ## Git
 
-- Remote configured; P2 and P3 commits pushed to `origin/main`
-  (`24c8190` Academy, `58bd0be` phase docs).
+- Remote configured; P2-P4 commits pushed to `origin/main`
+  (`24c8190` Academy, `58bd0be` phase docs, `6115eb3` Arsenal and Market).
