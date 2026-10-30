@@ -35,6 +35,7 @@
 	{/if}
 
 <form action="game.php?page=shipyard&amp;mode={$mode}" method="post">
+<div class="construct_grid">
 {foreach $elementList as $ID => $Element}
 	<div class="main_construct">
 		
@@ -43,11 +44,13 @@
 				<a href="#" onclick="return Dialog.info({$ID})"><img src="{$dpath}gebaeude/{$ID}.gif" alt="{$LNG.tech.{$ID}}" width="20" height="20"> {$LNG.tech.{$ID}} <span id="val_{$ID}">{if $Element.available != 0} ({$LNG.bd_available} {$Element.available|number}){/if}</a>
 			</div>
 
+			<div class="construct_body">
+			<div class="construct_thumb"><img src="{$dpath}gebaeude/{$ID}.gif" alt="{$LNG.tech.{$ID}}"></div>
 			<div class="block_construct_desc">
 				<div class="block_construct_desc_list">
 					{foreach $Element.costResources as $RessID => $RessAmount}
-						<div style="margin-bottom: 10px;">
-							<img src="{$dpath}images/{$RessID}.gif" alt=""> <b><span {if $Element.costOverflow[$RessID] == 0}class="res_{$RessID}_text"{/if} style="color:{if $Element.costOverflow[$RessID] == 0}{else}red{/if}">{$RessAmount|number}</span></b>
+						<div class="construct_cost" data-resource="{$RessID}">
+							<img src="{$dpath}images/{$RessID}.gif" alt=""> <b><span class="construct_cost_value {if $Element.costOverflow[$RessID] == 0}res_{$RessID}_text{/if}" style="color:{if $Element.costOverflow[$RessID] == 0}{else}red{/if}">{$RessAmount|number}</span></b>
 						</div>
 					{/foreach}
 
@@ -67,9 +70,11 @@
 
 				{if $NotBuilding}<div style="text-align:center"><input type="submit" value="{$LNG.bd_build_ships}"></div>{/if}
 			</div>
+			</div>
 		</div>
 	</div>
 	{/foreach}
+	</div>
 	<div class="clear"></div>
 
 </div>

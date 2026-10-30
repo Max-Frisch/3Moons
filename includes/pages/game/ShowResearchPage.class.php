@@ -468,6 +468,18 @@ class ShowResearchPage extends AbstractGamePage
 			
 			$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $elementId, false, $levelToBuild+1);
 			$costOverflow		= BuildFunctions::getRestPrice($USER, $PLANET, $elementId, $costResources);
+			$costBase			= array();
+			if(isset($pricelist[$elementId]['cost']))
+			{
+				foreach($pricelist[$elementId]['cost'] as $resType => $resAmount)
+				{
+					if($resAmount > 0)
+					{
+						$costBase[$resType]	= $resAmount;
+					}
+				}
+			}
+			$costFactor			= (isset($pricelist[$elementId]['factor']) && $pricelist[$elementId]['factor'] != 0 && $pricelist[$elementId]['factor'] != 1) ? (float) $pricelist[$elementId]['factor'] : 1.0;
 			$elementTime    	= BuildFunctions::getBuildingTime($USER, $PLANET, $elementId, $costResources);
 			$buyable			= $QueueCount != 0 || BuildFunctions::isElementBuyable($USER, $PLANET, $elementId, $costResources);
 
@@ -477,6 +489,8 @@ class ShowResearchPage extends AbstractGamePage
 				'maxLevel'			=> $pricelist[$elementId]['max'],
 				'costResources'		=> $costResources,
 				'costOverflow'		=> $costOverflow,
+				'costBase'			=> $costBase,
+				'costFactor'		=> $costFactor,
 				'elementTime'    	=> $elementTime,
 				'buyable'			=> $buyable,
 				'levelToBuild'		=> $levelToBuild,
@@ -489,6 +503,11 @@ class ShowResearchPage extends AbstractGamePage
 			'IsFullQueue'	=> Config::get()->max_elements_tech == 0 || (Config::get()->max_elements_tech + Progression::premiumQueueSlots($USER)) <= count($TechQueue),
 			'Queue'			=> $TechQueue,
 			'QueueNotice'	=> $QueueNotice,
+			'TargetResources'	=> array(
+				901	=> (float) $PLANET[$resource[901]],
+				902	=> (float) $PLANET[$resource[902]],
+				903	=> (float) $PLANET[$resource[903]],
+			),
 		));
 		
 		$this->display('page.research.default.tpl');

@@ -8,6 +8,7 @@
 		<span style="float: right; font-weight: normal;">{$LNG.ach_governor_ap} <span style="color: #f0a020; font-weight: bold;">{$achievementPoints}</span> / {$achievementPointsSpent}</span>
 	</div>
 
+	<div class="construct_grid">
 	{foreach $governatorList as $ID => $Element}
 		<div class="main_construct">
 			<div class="block_construct">
@@ -54,6 +55,7 @@
 			</div>
 		</div>
 	{/foreach}
+	</div>
 	<div class="clear"></div>
 	{/if}
 
@@ -62,6 +64,7 @@
 		{$LNG.of_offi}
 	</div>
 
+	<div class="construct_grid">
 	{foreach $officierList as $ID => $Element}
 		<div class="main_construct">
 			
@@ -104,6 +107,7 @@
 			</div>
 		</div>
 	{/foreach}
+	</div>
 	<div class="clear"></div>
 	{/if}
 

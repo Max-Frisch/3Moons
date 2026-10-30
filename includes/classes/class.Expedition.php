@@ -101,6 +101,12 @@ class Expedition
         return $keys[(int)floor($roll * count($keys))];
     }
 
+    /** CSS-safe report class used by the message detail body. */
+    public static function reportClass($outcome)
+    {
+        return 'exp-report-'.preg_replace('/[^a-z0-9-]/', '', strtolower((string)$outcome));
+    }
+
     /** Combat split: 58 pirates : 11 aliens = 84% / 16%. */
     public static function rollNPC($roll)
     {

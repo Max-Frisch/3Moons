@@ -60,19 +60,22 @@
 	</div>
 	{/if}
 
+<div class="construct_grid">
 {foreach $ResearchList as $ID => $Element}
 	<div class="main_construct">
 		
-		<div class="block_construct">
+		<div class="block_construct" data-cost-base='{$Element.costBase|json}' data-cost-factor="{$Element.costFactor}" data-start-level="{$Element.levelToBuild + 1}" data-max-level="{$Element.maxLevel}">
 			<div class="title" style="margin: 5px 0 0 -5px; text-align: left;">
 				<a href="#" onclick="return Dialog.info({$ID})"><img src="{$dpath}gebaeude/{$ID}.gif" alt="{$LNG.tech.{$ID}}" width="20" height="20"> {$LNG.tech.{$ID}} {if $Element.level > 0} - {$LNG.bd_lvl} {$Element.level}{if $Element.maxLevel != 255}/{$Element.maxLevel}{/if}{/if}</a>
 			</div>
 
+			<div class="construct_body">
+			<div class="construct_thumb"><img src="{$dpath}gebaeude/{$ID}.gif" alt="{$LNG.tech.{$ID}}"></div>
 			<div class="block_construct_desc">
 				<div class="block_construct_desc_list">
 					{foreach $Element.costResources as $RessID => $RessAmount}
-						<div style="margin-bottom: 10px;">
-							<img src="{$dpath}images/{$RessID}.gif" alt=""> <b><span {if $Element.costOverflow[$RessID] == 0}class="res_{$RessID}_text"{/if} style="color:{if $Element.costOverflow[$RessID] == 0}{else}red{/if}">{$RessAmount|number}</span></b>
+						<div class="construct_cost" data-resource="{$RessID}">
+							<img src="{$dpath}images/{$RessID}.gif" alt=""> <b><span class="construct_cost_value {if $Element.costOverflow[$RessID] == 0}res_{$RessID}_text{/if}" style="color:{if $Element.costOverflow[$RessID] == 0}{else}red{/if}">{$RessAmount|number}</span></b>
 						</div>
 					{/foreach}
 
@@ -106,14 +109,20 @@
 					{/if}
 				</div>
 			</div>
+			</div>
 		</div>
 	</div>
 	{/foreach}
+	</div>
 	<div class="clear"></div>
 
 </div>
 {/block}
 {block name="script" append}
+<script type="text/javascript">
+var targetResources = {$TargetResources|json};
+</script>
+<script src="scripts/game/targetlevel.js"></script>
     {if !empty($Queue)}
         <script src="scripts/game/research.js"></script>
     {/if}

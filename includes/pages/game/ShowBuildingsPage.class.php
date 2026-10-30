@@ -409,6 +409,18 @@ class ShowBuildingsPage extends AbstractGamePage
 			
 			$costResources		= BuildFunctions::getElementPrice($USER, $PLANET, $Element, false, $levelToBuild+1);
 			$costOverflow		= BuildFunctions::getRestPrice($USER, $PLANET, $Element, $costResources);
+			$costBase			= array();
+			if(isset($pricelist[$Element]['cost']))
+			{
+				foreach($pricelist[$Element]['cost'] as $resType => $resAmount)
+				{
+					if($resAmount > 0)
+					{
+						$costBase[$resType]	= $resAmount;
+					}
+				}
+			}
+			$costFactor			= (isset($pricelist[$Element]['factor']) && $pricelist[$Element]['factor'] != 0 && $pricelist[$Element]['factor'] != 1) ? (float) $pricelist[$Element]['factor'] : 1.0;
 			$elementTime    	= BuildFunctions::getBuildingTime($USER, $PLANET, $Element, $costResources);
 			$destroyResources	= BuildFunctions::getElementPrice($USER, $PLANET, $Element, true);
 			$destroyTime		= BuildFunctions::getBuildingTime($USER, $PLANET, $Element, $destroyResources);
@@ -421,6 +433,8 @@ class ShowBuildingsPage extends AbstractGamePage
 				'infoEnergy'		=> $infoEnergy,
 				'costResources'		=> $costResources,
 				'costOverflow'		=> $costOverflow,
+				'costBase'			=> $costBase,
+				'costFactor'		=> $costFactor,
 				'elementTime'    	=> $elementTime,
 				'destroyResources'	=> $destroyResources,
 				'destroyTime'		=> $destroyTime,
@@ -441,6 +455,11 @@ class ShowBuildingsPage extends AbstractGamePage
 			'RoomIsOk'			=> $RoomIsOk,
 			'Queue'				=> $Queue,
 			'QueueNotice'		=> $QueueNotice,
+			'TargetResources'	=> array(
+				901	=> (float) $PLANET[$resource[901]],
+				902	=> (float) $PLANET[$resource[902]],
+				903	=> (float) $PLANET[$resource[903]],
+			),
 			'isBusy'			=> array('shipyard' => !empty($PLANET['b_hangar_id']), 'research' => $USER['b_tech_planet'] != 0),
 			'HaveMissiles'		=> (bool) $PLANET[$resource[503]] + $PLANET[$resource[502]],
 		));

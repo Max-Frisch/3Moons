@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/../includes/classes/class.CombatReport.php';
+require_once __DIR__ . '/../includes/classes/class.Expedition.php';
 
 $fail = 0;
 $pass = 0;
@@ -92,6 +93,9 @@ check('empty defender total', $empty['defender']['lostTotal'], 0);
 $emptyShare = CombatReport::lossShare($empty);
 check('empty share does not divide by zero', $emptyShare['attacker'], 0);
 check('empty share defender', $emptyShare['defender'], 0);
+
+check('expedition report class', Expedition::reportClass(Expedition::OUTCOME_BLACKHOLE_LOOT), 'exp-report-blackhole-loot');
+check('expedition report class sanitised', Expedition::reportClass('Odd Value!'), 'exp-report-oddvalue');
 
 echo ($fail === 0 ? 'OK' : 'FAILED') . " - {$pass} passed, {$fail} failed\n";
 exit($fail === 0 ? 0 : 1);

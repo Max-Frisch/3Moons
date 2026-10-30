@@ -129,7 +129,7 @@ Deliverables:
 Exit: catalog/techtree tests from neoxnova can be reproduced as 3Moons checks;
 combat and expedition samples match the captures within stated tolerances.
 
-## Phase 8 - UI, messages, reports (P8) - IN PROGRESS
+## Phase 8 - UI, messages, reports (P8) - DONE 2026-10-30
 
 Deliverables:
 
@@ -138,6 +138,11 @@ Deliverables:
 - Live-style combat/espionage/expedition report detail screens.
 
 Exit: the game is visually and informationally close to the live client.
+
+Delivered: responsive card grids, Niburu sprite set, cumulative target costs,
+message categories/archive/outbox, combat/espionage/expedition report detail
+styling. Generic alliance/game/construction message writers are not wired
+because the captures expose no writer payload for them.
 
 ## Per-item workflow
 

@@ -205,6 +205,31 @@
     detail screens, and the remaining generic message writers (alliance/game/
     construction events).
 
+## Completed 2026-10-30 (P8 finish)
+
+- Niburu reskin/card layout:
+  - Mirrored the Niburu sprite set for buildings, research, ships and defenses
+    into `styles/theme/gow/gebaeude/` (adds 71-73, 221/222/223/225-228 and
+    412-419; replaces the shared sprites with the live look).
+  - Buildings, research, shipyard and officer cards now use a responsive
+    `construct_grid` (`repeat(auto-fill, minmax(300px, 1fr))`) instead of the
+    endless fixed two-column float. Cards have a 88px sprite, transparent cost
+    panel and the same layout at any window width/zoom.
+  - Thousands separators and the existing card buttons/queue behaviour are
+    unchanged.
+- Target-level cumulative costs:
+  - Added `scripts/game/targetlevel.js` and per-card `data-cost-base` /
+    `data-cost-factor` payloads. Typing a target or using the spinner now sums
+    the per-level price from the next level through the target and marks each
+    resource red when the total exceeds the current amount.
+  - Formula matches `BuildFunctions::getElementPrice()`: `base * factor^level`
+    (no factor or factor 1 = flat price per level).
+- Report details:
+  - Espionage reports now render as responsive per-category stat cards with a
+    report banner; expedition messages are wrapped in outcome-coloured
+    `exp-report-*` panels. `Expedition::reportClass()` supplies the safe class.
+  - `tests/p8_math.php` now has 27 checks (adds report-class mapping).
+
 ## Completed 2026-10-30 (P7 finish)
 
 - Stardust is now a real currency: `users.stardust` (migration 12, bumped
@@ -243,10 +268,12 @@
 - `docker compose exec -T web php tests/progression_math.php`: 63/63 pass.
 - `docker compose exec -T web php tests/blackmarket_math.php`: 34/34 pass.
 - `docker compose exec -T web php tests/collider_math.php`: 17/17 pass.
-- `docker compose exec -T web php tests/p8_math.php`: 25/25 pass.
+- `docker compose exec -T web php tests/p8_math.php`: 27/27 pass.
+- `docker compose exec -T web php tests/target_level_math.php`: 5/5 pass.
 - `docker compose exec -T web php tests/p7_math.php`: 128/128 pass (adds
   Academy procs, Fire integration, Stardust/diameter and expedition flavour checks).
-- `ADMIN=1 tools/smoke.sh`: 116/116 pass (after fixing the admin fleets page).
+- `ADMIN=1 tools/smoke.sh`: 116/116 pass (after fixing the admin fleets page; rerun after P8 finish).
+- P8 finish: buildings/research/shipyard/officier render the responsive card grid; the target payload contains `costBase`/`costFactor`; spy/expedition report CSS and `Expedition::reportClass()` are in place.
 - Planetarium diameter: with 1 Stardust + 100B metal + 50B crystal debris on
   planet 6, a POST added 399 km / 17 fields, consumed the debris and Stardust,
   and returned `done=diameter`; baseline and balances were restored.
@@ -365,14 +392,17 @@
 
 ## Start here next session
 
-**Continue P8**: port the Niburu artwork/shell reskin (private/local use), add
-richer spy/expedition report detail screens, and wire the remaining generic
-message writers (alliance/game/construction). B008 is still open and needs an
-exact page/SQL error.
+P0-P8 are closed. B008 is still open and needs an exact page/SQL error. The
+remaining feature follow-ups are listed below; none blocks playability.
 
-P7 is closed. Follow-ups, if revisited: capture the exact Academy proc split,
-the remaining Academy defence/recovery effects, and whether existing build
-costs should move to the captured values.
+- Generic alliance/game/construction message writers: the captures only expose
+  the category grid, not writer payloads. Add them from a live message capture
+  when available.
+- Academy: capture the exact proc split and the remaining defence/recovery
+  effects.
+- Data: decide whether existing build costs should move to the captured values.
+- Optional: a fuller shell reskin (top bar/left menu backgrounds) if the local
+  Niburu asset set should replace more of the stock theme.
 
 ## Operational gotchas
 
@@ -409,5 +439,4 @@ costs should move to the captured values.
 
 ## Git
 
-- Remote configured; P0-P7 are pushed to `origin/main`. P8 remains a first
-  slice (archive/outbox + report summaries).
+- Remote configured; P0-P8 are pushed to `origin/main`.
