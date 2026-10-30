@@ -445,6 +445,43 @@ class Academy
         return self::sum($levels, 'rf_reduction');
     }
 
+    /**
+     * The eight combat procs are not shown on the ship card and the captures
+     * only expose their aggregate effect. They are modelled parametrically:
+     *
+     *   1103 Double attack            +2%/level extra shots
+     *   1108 Accurate shots           +2%/level damage
+     *   1109 Chain reaction           +1%/level extra shots
+     *   1110 Strengthening explosion  +8%/level damage on the extra shots only
+     *   1111 Focusing                 +1%/level damage
+     *   1303 Double shields           +2%/level shields
+     *   1308 Heavy Armour             -2%/level incoming rapid fire
+     *   1311 Sealing double shields   +3%/level shields
+     *
+     * 1103/1109 follow the neoxnova reading; the rest are Reconstructed until a
+     * dedicated live probe splits them. Keeping the mapping here makes the
+     * parametric choices explicit and testable.
+     */
+    public static function procPercents($levels)
+    {
+        $level = function ($code) use ($levels) {
+            return isset($levels[$code]) ? (int)$levels[$code] : 0;
+        };
+
+        return array(
+            'extra_shots'       => 2 * $level('1103') + $level('1109'),
+            'extra_shot_damage' => 8 * $level('1110'),
+            'damage'            => 2 * $level('1108') + $level('1111'),
+            'shield'            => 2 * $level('1303') + 3 * $level('1311'),
+            'rf_reduction'      => 2 * $level('1308'),
+        );
+    }
+
+    public static function procPercentsFor($USER)
+    {
+        return self::procPercents(self::levelsFor($USER));
+    }
+
     public static function levelsFor($USER)
     {
         if (isset($USER['academy_levels']) && is_array($USER['academy_levels'])) {

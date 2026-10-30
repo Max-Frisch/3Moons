@@ -656,6 +656,9 @@ $LNG['bm_buy']								= 'Buy';
 $LNG['bm_buy_fields']						= 'Buy fields';
 $LNG['bm_teleport']						= 'Teleport';
 $LNG['bm_fields']						= 'Fields';
+$LNG['bm_stardust']						= 'Stardust';
+$LNG['bm_diameter']						= 'Diameter';
+$LNG['bm_increase_diameter']			= 'Increase diameter';
 $LNG['bm_field_free']					= 'Free fields';
 $LNG['bm_fields_bought']					= 'Fields bought';
 $LNG['bm_celestial']					= 'Celestial';
@@ -677,6 +680,8 @@ $LNG['bm_error']						= array(
 	'cooldown' => 'You can only teleport out of the system once per hour.',
 	'occupied' => 'The target position is already occupied.',
 	'voucher' => 'This voucher code is invalid, used up or expired.',
+	'stardust' => 'Not enough Stardust.',
+	'debris' => 'Not enough metal and crystal debris at these coordinates.',
 );
 
 //----------------------------------------------------------------------------//

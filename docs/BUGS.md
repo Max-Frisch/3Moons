@@ -49,6 +49,7 @@ page-breaking.
 | B033 | fixed | Game / DB | New black market/collider queries matched nothing because `planet_type` is an `enum('1','3')` | Numeric comparisons such as `planet_type = 3` compare the enum index, not the string | Quote enum values (`planet_type = '3'`) in the Collider accrual and Planetarium queries |
 | B034 | fixed | Game / Fleet | Sending a fleet to an empty planet slot (colonization) or a missing moon/debris target logged PHP 8 warnings from `checkTarget()`; the warning output could corrupt the `OK` JSON and leave the Continue button stuck | `checkTarget()` read fields from a `false` DB row; Step 2/3 also handled missing target rows late | Guarded empty targets, return the proper no-moon/no-debris message, and normalize empty planet slots before mission checks |
 | B035 | fixed | Game / Fleet | `fleetStep3` showed `Undefined array key "ownPlanet"` and could reject a valid launch | Step 1 never stored the origin planet in the fleet session | Store `ownPlanet` when creating the token and fall back to the current planet in Step 3 |
+| B036 | fixed | Admin / Fleets | `admin.php?page=fleets` 503'd when at least one fleet was flying | `ShowFlyingFleetPage()` used `$USER['timezone']` without importing `$USER` | Added `$USER` to the function's `global` list |
 
 ## Admin crawl snapshot (2026-10-29, before P0)
 

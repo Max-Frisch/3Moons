@@ -799,6 +799,7 @@ CREATE TABLE `%PREFIX%users` (
   `academy_points` int(11) unsigned NOT NULL DEFAULT '0',
   `academy_points_spent` int(11) unsigned NOT NULL DEFAULT '0',
   `antimatter` double(255,0) NOT NULL DEFAULT '0',
+  `stardust` bigint(20) unsigned NOT NULL DEFAULT '0',
   `gov_level_701` smallint(5) unsigned NOT NULL DEFAULT '0',
   `gov_level_702` smallint(5) unsigned NOT NULL DEFAULT '0',
   `gov_level_703` smallint(5) unsigned NOT NULL DEFAULT '0',

@@ -65,7 +65,8 @@ class Fire
     }
     public function getPower()
     {
-        return $this->attackerShipType->getPower();
+        return $this->attackerShipType->getPower()
+            * (1 + $this->attackerShipType->getAcademyDamagePct() / 100);
     }
     public function getId()
     {
@@ -100,8 +101,7 @@ class Fire
      */
     private function calculateTotal()
     {
-        $this->shots += $this->attackerShipType->getCount();
-        $this->power += $this->getNormalPower();
+        $this->addShotGroup($this->attackerShipType->getCount());
 
         if (USE_RF)
         {
@@ -133,8 +133,7 @@ class Fire
         //rapid fire
         $tmpshots = round($this->getShotsFromOneAttackerShipOfType($this->attackerShipType) * $this->attackerShipType->getCount());
         log_var('$tmpshots',$tmpshots);
-        $this->power += $tmpshots * $this->attackerShipType->getPower();
-        $this->shots += $tmpshots;
+        $this->addShotGroup($tmpshots);
 
         /* old way
         $tmpshots = round($this->getShotsFromOneAttackerShipOfType($this->attackerShipType) * $this->attackerShipType->getCount());
@@ -181,6 +180,11 @@ class Fire
         foreach ($this->defenderFleet->getIterator() as $idFleet => $shipType_D)
         {
             $RF = $shipType_A->getRfTo($shipType_D);
+            $reduction = $shipType_D->getAcademyRfReductionPct();
+            if ($RF > 0 && $reduction > 0)
+            {
+                $RF = max(1, (int)round($RF - $RF * $reduction / 100));
+            }
             $probabilityToShotAgain = 1 - GeometricDistribution::getProbabilityFromMean($RF);
             $probabilityToHitThisType = $shipType_D->getCount() / $this->defenderFleet->getTotalCount();
             $p += $probabilityToShotAgain * $probabilityToHitThisType;
@@ -211,7 +215,26 @@ class Fire
      */
     private function getNormalPower()
     {
-        return $this->attackerShipType->getCount() * $this->attackerShipType->getPower();
+        return $this->attackerShipType->getCount() * $this->getPower();
+    }
+
+    /**
+     * Add a group of base shots plus the Academy extra-shot proc. The extra
+     * shots use their own (1110) damage multiplier; 1103/1109 add volume.
+     */
+    private function addShotGroup($shots)
+    {
+        $shots = (float)$shots;
+        if ($shots <= 0)
+        {
+            return;
+        }
+        $power = $this->getPower();
+        $extra = $shots * $this->attackerShipType->getAcademyExtraShotsPct() / 100;
+        $extraPower = $power * (1 + $this->attackerShipType->getAcademyExtraShotDamagePct() / 100);
+
+        $this->shots += $shots + $extra;
+        $this->power += $shots * $power + $extra * $extraPower;
     }
     //------- INCOMING FIRE------------
 

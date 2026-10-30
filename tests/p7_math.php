@@ -5,11 +5,11 @@
  * Run with: docker compose exec -T web php tests/p7_math.php
  */
 
-require_once __DIR__ . '/../includes/libs/opbe/constants/battle_constants.php';
-require_once __DIR__ . '/../includes/libs/opbe/models/Type.php';
-require_once __DIR__ . '/../includes/libs/opbe/models/ShipType.php';
+require_once __DIR__ . '/../includes/libs/opbe/utils/includer.php';
 require_once __DIR__ . '/../includes/classes/class.CombatStats.php';
 require_once __DIR__ . '/../includes/classes/class.Arsenal.php';
+require_once __DIR__ . '/../includes/classes/class.Academy.php';
+require_once __DIR__ . '/../includes/classes/class.BlackMarket.php';
 require_once __DIR__ . '/../includes/classes/class.Expedition.php';
 
 $fail = 0;
@@ -119,6 +119,65 @@ foreach (array(71, 72, 73, 221, 222, 225, 226, 227, 228, 412, 413, 414, 415, 416
 }
 check('migration has rapidfire', strpos($migration, 'vars_rapidfire') !== FALSE, TRUE);
 check('migration has conveyor requirements', strpos($migration, '(71,15,5)') !== FALSE, TRUE);
+
+$proc = Academy::procPercents(array(
+    '1103' => 5, '1109' => 5, '1108' => 5, '1110' => 5, '1111' => 5,
+    '1303' => 5, '1311' => 5, '1308' => 5,
+));
+check('proc extra shots', $proc['extra_shots'], 15);
+check('proc extra shot damage', $proc['extra_shot_damage'], 40);
+check('proc damage', $proc['damage'], 15);
+check('proc shield', $proc['shield'], 25);
+check('proc rf reduction', $proc['rf_reduction'], 10);
+check('proc empty', Academy::procPercents(array()), array(
+    'extra_shots' => 0, 'extra_shot_damage' => 0, 'damage' => 0, 'shield' => 0, 'rf_reduction' => 0,
+));
+
+$procShip = new ShipType(207, 1, array(), 200, array(41000, 17000), 700, 0, 0, 0, 5800);
+$procShip->applyAcademyProcs(15, 40, 15, 25, 10);
+check('academy shield bonus', $procShip->getShield(), 250);
+check('academy base power unchanged', $procShip->getPower(), 700);
+check('academy damage getter', $procShip->getAcademyDamagePct(), 15);
+check('academy extra shots getter', $procShip->getAcademyExtraShotsPct(), 15);
+check('academy rf reduction getter', $procShip->getAcademyRfReductionPct(), 10);
+
+$defFleet = new Fleet(1);
+$defFleet->addShipType(new ShipType(204, 1, array(), 10, array(3000, 1000), 50, 0, 0, 0, 400));
+$plainShip = new ShipType(204, 10, array(), 10, array(3000, 1000), 50, 0, 0, 0, 400);
+$procFireShip = new ShipType(204, 10, array(), 10, array(3000, 1000), 50, 0, 0, 0, 400);
+$procFireShip->applyAcademyProcs(15, 40, 15, 0, 0);
+ob_start();
+$plainFire = new Fire($plainShip, $defFleet);
+$procFire = new Fire($procFireShip, $defFleet);
+ob_end_clean();
+check('fire plain shots', $plainFire->getAttackerTotalShots(), 10.0);
+check('fire plain power', $plainFire->getAttackerTotalFire(), 500.0);
+check('fire proc damage per shot', round($procFire->getPower(), 6), 57.5);
+check('fire proc shots', round($procFire->getAttackerTotalShots(), 6), 11.5);
+check('fire proc power', round($procFire->getAttackerTotalFire(), 6), 695.75);
+
+check('diameter min gains', BlackMarket::diameterGains(0.0, 0.0), array(276, 12));
+check('diameter max gains', BlackMarket::diameterGains(0.999999, 0.999999), array(414, 18));
+check('diameter debris metal', BlackMarket::DIAMETER_METAL_DEBRIS, 100000000000);
+check('diameter debris crystal', BlackMarket::DIAMETER_CRYSTAL_DEBRIS, 50000000000);
+
+check('resource flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_RESOURCES)), 9);
+check('ship flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_SHIPS)), 8);
+check('dm flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_DARKMATTER)), 10);
+check('nothing flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_NOTHING)), 9);
+check('delay flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_DELAY)), 6);
+check('fast flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_FAST)), 3);
+check('black hole flavours', count(Expedition::flavourKeys(Expedition::OUTCOME_BLACKHOLE)), 4);
+check('stardust first flavour', Expedition::flavour(Expedition::OUTCOME_STARDUST, 0.0), '1');
+check('stardust last flavour', Expedition::flavour(Expedition::OUTCOME_STARDUST, 0.999), '4');
+check('resource flavour roll', Expedition::flavour(Expedition::OUTCOME_RESOURCES, 0.999), '3_2');
+
+$migration12 = file_get_contents(__DIR__ . '/../install/migrations/migration_12.sql');
+check('migration adds stardust', strpos($migration12, '`stardust`') !== FALSE, TRUE);
+$install = file_get_contents(__DIR__ . '/../install/install.sql');
+check('install has stardust', strpos($install, '`stardust` bigint') !== FALSE, TRUE);
+$fleetLang = file_get_contents(__DIR__ . '/../language/en/FLEET.php');
+check('stardust flavour text', strpos($fleetLang, "sys_expe_stardust_4") !== FALSE, TRUE);
 
 echo ($fail === 0 ? 'OK' : 'FAILED') . " - {$pass} passed, {$fail} failed\n";
 exit($fail === 0 ? 0 : 1);

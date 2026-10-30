@@ -61,6 +61,46 @@ class Expedition
         return mt_rand() / mt_getrandmax();
     }
 
+    /**
+     * Cosmetic flavour catalogue: the live sys_expe_* language keys. Each
+     * outcome has its own pool; the caller passes a [0,1) roll so the choice
+     * stays deterministic in tests. Ported from the captured language files.
+     */
+    public static function flavourKeys($outcome)
+    {
+        switch ($outcome) {
+            case self::OUTCOME_RESOURCES:
+                return array('1_1', '1_2', '1_3', '1_4', '2_1', '2_2', '2_3', '3_1', '3_2');
+            case self::OUTCOME_SHIPS:
+                return array('1_1', '1_2', '1_3', '1_4', '2_1', '2_2', '3_1', '3_2');
+            case self::OUTCOME_DARKMATTER:
+                return array('1_1', '1_2', '1_3', '1_4', '1_5', '2_1', '2_2', '2_3', '3_1', '3_2');
+            case self::OUTCOME_STARDUST:
+                return array('1', '2', '3', '4');
+            case self::OUTCOME_NOTHING:
+                return array('1', '2', '3', '4', '5', '6', '7', '8', '9');
+            case self::OUTCOME_DELAY:
+                return array('1', '2', '3', '4', '5', '6');
+            case self::OUTCOME_FAST:
+                return array('1', '2', '3');
+            case self::OUTCOME_BLACKHOLE:
+                return array('1', '2', '3', '4');
+            default:
+                return array();
+        }
+    }
+
+    /** Pick a flavour key from the outcome's pool for a [0,1) roll. */
+    public static function flavour($outcome, $roll)
+    {
+        $keys = self::flavourKeys($outcome);
+        if (empty($keys)) {
+            return '';
+        }
+        $roll = max(0.0, min(0.999999999, (float)$roll));
+        return $keys[(int)floor($roll * count($keys))];
+    }
+
     /** Combat split: 58 pirates : 11 aliens = 84% / 16%. */
     public static function rollNPC($roll)
     {

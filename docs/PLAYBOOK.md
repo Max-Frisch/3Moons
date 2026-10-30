@@ -87,7 +87,7 @@ Deliverables:
 Exit: an upgrade can be found, listed, bought, activated, and its bonus is
 reflected in combat/economy.
 
-## Phase 5 - Progression: peaceful, combat XP, bonus, premium (P5)
+## Phase 5 - Progression: peaceful, combat XP, bonus, premium (P5) - DONE 2026-10-29
 
 Deliverables:
 
@@ -99,7 +99,7 @@ Deliverables:
 Exit: peaceful/combat levels advance from real actions; bonus and premium
 payouts match captured values.
 
-## Phase 6 - Black market, Planetarium, Collider, Empire, Jumpgate (P6)
+## Phase 6 - Black market, Planetarium, Collider, Empire, Jumpgate (P6) - DONE 2026-10-29
 
 Deliverables:
 
@@ -113,7 +113,7 @@ Deliverables:
 
 Exit: each page is reachable, performs its action, and matches captured costs.
 
-## Phase 7 - Data and combat parity (P7)
+## Phase 7 - Data and combat parity (P7) - DONE 2026-10-30
 
 Deliverables:
 
@@ -121,11 +121,15 @@ Deliverables:
 - Rates, storage, production, debris, colony caps.
 - Combat model and rapid fire (replace or calibrate OPBE).
 - Expedition tables and report formats.
+- Stardust currency, Planetarium diameter sink and expedition finds.
+- Full expedition flavour catalogue.
+- The eight Academy combat procs (1103/1108/1109/1110/1111/1303/1308/1311).
+- Existing build costs intentionally stay at the 2Moons values (see HANDOFF).
 
 Exit: catalog/techtree tests from neoxnova can be reproduced as 3Moons checks;
 combat and expedition samples match the captures within stated tolerances.
 
-## Phase 8 - UI, messages, reports (P8)
+## Phase 8 - UI, messages, reports (P8) - IN PROGRESS
 
 Deliverables:
 

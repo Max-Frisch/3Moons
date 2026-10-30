@@ -319,6 +319,13 @@ function getShipType($id, $count, $player = null)
         $shipType = new Defense($id, $count, $rf, $shield, $cost, $power, null, null, null, $hull);
     }
 
+    if ($player !== null && class_exists('Academy'))
+    {
+        $proc = Academy::procPercentsFor($player);
+        $shipType->applyAcademyProcs($proc['extra_shots'], $proc['extra_shot_damage'],
+            $proc['damage'], $proc['shield'], $proc['rf_reduction']);
+    }
+
     if ($player !== null && class_exists('Arsenal'))
     {
         $owned = Arsenal::getOwned(isset($player['id']) ? $player['id'] : 0);

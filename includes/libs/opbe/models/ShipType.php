@@ -53,6 +53,12 @@ class ShipType extends Type
     private $arsenalShieldPct = 0;
     private $arsenalArmourPct = 0;
 
+    private $academyExtraShotsPct = 0;
+    private $academyExtraShotDamagePct = 0;
+    private $academyDamagePct = 0;
+    private $academyShieldPct = 0;
+    private $academyRfReductionPct = 0;
+
     private $rf;
     protected $lastShots;
     protected $lastShipHit;
@@ -111,7 +117,7 @@ class ShipType extends Type
             * (1 + $this->arsenalAttackPct / 100)
             * (1 + $attackTech / 100));
         $this->singleShield = round($this->originalShield
-            * (1 + ($shieldTech + $this->arsenalShieldPct) / 100));
+            * (1 + ($shieldTech + $this->arsenalShieldPct + $this->academyShieldPct) / 100));
         $this->singleLife = round($this->originalHull
             * (1 + ($armourTech + $this->arsenalArmourPct) / 100));
 
@@ -194,6 +200,41 @@ class ShipType extends Type
         $this->recalculate();
     }
 
+
+    /**
+     * Apply the owner's Academy combat procs. Damage is kept out of
+     * singlePower so the ship card/report header still shows the base value,
+     * matching the live client; Fire applies the proc multipliers.
+     */
+    public function applyAcademyProcs($extraShotsPct, $extraShotDamagePct, $damagePct, $shieldPct, $rfReductionPct)
+    {
+        $this->academyExtraShotsPct = max(0, (float)$extraShotsPct);
+        $this->academyExtraShotDamagePct = max(0, (float)$extraShotDamagePct);
+        $this->academyDamagePct = (float)$damagePct;
+        $this->academyShieldPct = (float)$shieldPct;
+        $this->academyRfReductionPct = max(0, min(100, (float)$rfReductionPct));
+        $this->recalculate();
+    }
+
+    public function getAcademyExtraShotsPct()
+    {
+        return $this->academyExtraShotsPct;
+    }
+
+    public function getAcademyExtraShotDamagePct()
+    {
+        return $this->academyExtraShotDamagePct;
+    }
+
+    public function getAcademyDamagePct()
+    {
+        return $this->academyDamagePct;
+    }
+
+    public function getAcademyRfReductionPct()
+    {
+        return $this->academyRfReductionPct;
+    }
 
     /**
      * ShipType::increment()
@@ -547,6 +588,13 @@ class ShipType extends Type
         if ($this->arsenalAttackPct != 0 || $this->arsenalShieldPct != 0 || $this->arsenalArmourPct != 0)
         {
             $tmp->applyArsenalBonus($this->arsenalAttackPct, $this->arsenalShieldPct, $this->arsenalArmourPct);
+        }
+        if ($this->academyExtraShotsPct != 0 || $this->academyExtraShotDamagePct != 0
+            || $this->academyDamagePct != 0 || $this->academyShieldPct != 0
+            || $this->academyRfReductionPct != 0)
+        {
+            $tmp->applyAcademyProcs($this->academyExtraShotsPct, $this->academyExtraShotDamagePct,
+                $this->academyDamagePct, $this->academyShieldPct, $this->academyRfReductionPct);
         }
         $tmp->currentShield = $this->currentShield;
         $tmp->currentLife = $this->currentLife;

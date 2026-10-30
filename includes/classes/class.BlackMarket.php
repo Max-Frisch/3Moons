@@ -25,6 +25,19 @@ class BlackMarket
     const RELOCATION_COOLDOWN = 3600;
     const ATTACK_LOCK_TIME = 900;
 
+    /**
+     * Planetarium "increase in diameter" sink, captured from the live page:
+     * one Stardust plus the metal/crystal debris field at the celestial's
+     * coordinates buys +276..414 km and +12..18 fields.
+     */
+    const DIAMETER_METAL_DEBRIS = 100000000000;
+    const DIAMETER_CRYSTAL_DEBRIS = 50000000000;
+    const DIAMETER_STARDUST = 1;
+    const DIAMETER_MIN_KM = 276;
+    const DIAMETER_MAX_KM = 414;
+    const DIAMETER_MIN_FIELDS = 12;
+    const DIAMETER_MAX_FIELDS = 18;
+
     public static function merchantRate($configured)
     {
         return max(0, min(100, (int)$configured));
@@ -99,6 +112,30 @@ class BlackMarket
             * (pow(self::FIELD_FACTOR, $additional) - 1.0);
 
         return (int)round($cost);
+    }
+
+    /**
+     * Map two uniform [0,1) rolls onto the captured diameter/field gains.
+     * Both bounds are inclusive, matching the live ranges.
+     */
+    public static function diameterGains($diameterRoll, $fieldsRoll)
+    {
+        return array(
+            self::expansionRoll(self::DIAMETER_MIN_KM, self::DIAMETER_MAX_KM, $diameterRoll),
+            self::expansionRoll(self::DIAMETER_MIN_FIELDS, self::DIAMETER_MAX_FIELDS, $fieldsRoll),
+        );
+    }
+
+    private static function expansionRoll($min, $max, $roll)
+    {
+        $roll = (float)$roll;
+        if ($roll < 0) {
+            $roll = 0.0;
+        }
+        if ($roll >= 1) {
+            $roll = 0.999999999;
+        }
+        return (int)($min + floor($roll * ($max - $min + 1)));
     }
 
     public static function relocationCost($fromGalaxy, $fromSystem, $fromPosition, $toGalaxy, $toSystem, $toPosition)

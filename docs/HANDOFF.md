@@ -1,4 +1,4 @@
-# Session handoff - 2026-10-29
+# Session handoff - 2026-10-30
 
 ## State
 
@@ -12,7 +12,7 @@
 - Universe is open (`game_disable=0`) and set to English.
 - Reference checkouts are pristine and read-only:
   `2moons-v2.0`, `neoxnova`, `neoxnova-ops`.
-- DB schema is now revision **11** (`install/migrations/migration_11.sql`).
+- DB schema is now revision **12** (`install/migrations/migration_12.sql`).
 
 ## Completed this session
 
@@ -205,6 +205,35 @@
     detail screens, and the remaining generic message writers (alliance/game/
     construction events).
 
+## Completed 2026-10-30 (P7 finish)
+
+- Stardust is now a real currency: `users.stardust` (migration 12, bumped
+  `DB_VERSION_REQUIRED` to 12 and added the column to `install/install.sql`).
+- Expedition stardust outcomes now add 1 Stardust to the owner instead of
+  paying a resource fallback. The old `sys_expe_stardust_unavailable` string is
+  replaced by the four captured `sys_expe_stardust_1..4` messages.
+- Expedition flavour catalogue is fully wired: resources (9), ships (8), dark
+  matter (10), nothing (9), delay (6), fast (3), fatal black hole (4) and
+  stardust (4) variants. `Expedition::flavourKeys()` / `flavour()` select from
+  the captured live `sys_expe_*` language keys; tests pin the pools.
+- Planetarium "increase diameter" sink is live: 1 Stardust + 100B metal +
+  50B crystal debris at the celestial's coordinates buys +276..414 km and
+  +12..18 fields. Moons use their parent planet's debris row. Implemented in
+  `ShowPlanetPage::diameter()` with `BlackMarket::diameterGains()` and a new
+  Planetarium column/button.
+- All eight Academy combat procs are wired: 1103/1109 add extra shots,
+  1110 scales extra-shot damage, 1108/1111 add damage, 1303/1311 add shields,
+  1308 reduces incoming rapid fire. They are applied per unit through
+  `ShipType::applyAcademyProcs()` and `Fire`, so the ship card header still
+  shows the unmodified value like the live client. The mapping is parametric
+  and explicit in `Academy::procPercents()`; see the confidence note below.
+- P7 build-cost decision: keep the existing 2Moons build costs. The captures
+  expose information-card stats but not reliable prices for every unit; mixing
+  captured and legacy prices would make progression/balance inconsistent.
+- Fixed a pre-existing admin regression found by the smoke test:
+  `ShowFlyingFleetPage()` was missing `$USER` in its `global` list and 503'd on
+  real flying fleets.
+
 ## Manual verification done
 
 - `ADMIN=1 tools/smoke.sh`: 98/98 pass.
@@ -214,9 +243,15 @@
 - `docker compose exec -T web php tests/progression_math.php`: 63/63 pass.
 - `docker compose exec -T web php tests/blackmarket_math.php`: 34/34 pass.
 - `docker compose exec -T web php tests/collider_math.php`: 17/17 pass.
-- `docker compose exec -T web php tests/p7_math.php`: 95/95 pass.
 - `docker compose exec -T web php tests/p8_math.php`: 25/25 pass.
-- `ADMIN=1 tools/smoke.sh`: 116/116 pass (adds archive/outbox message views).
+- `docker compose exec -T web php tests/p7_math.php`: 128/128 pass (adds
+  Academy procs, Fire integration, Stardust/diameter and expedition flavour checks).
+- `ADMIN=1 tools/smoke.sh`: 116/116 pass (after fixing the admin fleets page).
+- Planetarium diameter: with 1 Stardust + 100B metal + 50B crystal debris on
+  planet 6, a POST added 399 km / 17 fields, consumed the debris and Stardust,
+  and returned `done=diameter`; baseline and balances were restored.
+- All math tests pass: academy 55, achievements 14, arsenal 48, black market 34,
+  collider 17, p7 128, p8 25, progression 63.
 - Message archive: `mode=inarchive` set `message_archived=1` on message 60,
   the Archive view rendered it, and `mode=outarchive` returned it to the
   inbox; the row was restored afterwards.
@@ -284,77 +319,60 @@
 
 ## Data confidence / still not data-driven
 
-- **P7 now captured**: missing ships/defenses, their stats/costs where the
-  information cards exposed them, the 303-row rapid-fire table, all new
-  prerequisites, conveyor costs and the quadratic combat/expedition curves.
-  Defense costs for 412-415/418/419 were reconstructed from hull (10x hull),
-  because the captures exposed stats but not build prices.
-- **Still open in P7**: existing-unit build costs remain the old 2Moons values
-  (stats are live); Stardust (`users.stardust`, planetarium diameter sink) is not
-  added; expedition flavour variants are still one message per outcome; Academy
-  damage procs are not split into their eight live skills.
-
-
 - **Captured (exact)**: governator ids, max levels, AP/DM price bases and
   factors, per-level 1% effect step; achievement requirement steps and unit
   growth factors; reward curves calibrated against the live star badges in
   `HumanAIShare` (e.g. Metal Miner 26 = 6988, Terraformer 11 = 343,
   Light defense 48 = 14102, Imperial fleet 21 = 56257). Arsenal catalog,
   per-activation values, tier gates, drop pools, activation chances and unit
-  card classes are captured from the live pages/fixture.
+  card classes are captured from the live pages/fixture. Expedition outcome
+  weights, enemy mirroring, DM scaling, Stardust finds and the flavour strings
+  are captured. Planetarium diameter costs/ranges are captured.
+- **P7 captured**: missing ships/defenses, their stats/costs where the
+  information cards exposed them, the 303-row rapid-fire table, all new
+  prerequisites, conveyor costs and the quadratic combat/expedition curves.
+  Defense costs for 412-415/418/419 were reconstructed from hull (10x hull),
+  because the captures exposed stats but not build prices.
+- **Build costs**: existing-unit build costs intentionally stay at the 2Moons
+  values. Stats, rapid fire and combat curves are live; mixing captured and
+  legacy prices would make progression and balance inconsistent.
 - **Reconstructed**: reward curves for achievements with no high-level star
   anchor (Raider, both daily Victory/expo, Moon destroyer, Mon maker,
   Victory Hostal, Fighter). These use category-typical growth and are marked in
   the catalog.
+- **Parametric (Academy procs)**: 1103/1109 use the neoxnova extra-shot read;
+  1108/1110/1111 and 1303/1311 are folded into the defensive/attack model as
+  documented in `Academy::procPercents()`; 1308 reduces incoming rapid fire.
+  The captures confirm all eight are real damage modifiers but do not split
+  their exact per-shot semantics. Re-tune in one place once a probe separates
+  them.
 - **Still guesstimated / not wired**:
-  - Peaceful level and battle level do not exist yet (P5), so General and
-    Veteran achievements show progress 0.
   - Daily wins/expo counters are not reset or tracked; only `users.wons` is
-    wired (Raider/Fighter).
-  - Moon destroy/make, expedition total and DM-found have no event counters yet
-    (P5/P7), so those misc achievements stay at 0. Arsenal found/activated now
-    feed Upgrade finder / Upgrade engeneer.
-  - The following Niburu ids do not exist in the 3Moons catalog yet (P7), so
-    their achievements cannot progress: conveyors 71-73; ships 221, 222 and
-    225-228; defenses 412-419. Requirements are displayed with the captured
-    names but progress remains 0.
-  - Arsenal combat attack uses each unit's **primary** weapon class only.
-    Multi-weapon units (213/216/225-228, 411-419) will need per-component
-    weapon classes in the P7 combat rework for exact numbers.
-  - Conveyor upgrades 14/15/16 are catalog/activation/market complete but have
-    no production effect yet because conveyor buildings 71-73 do not exist.
-  - Academy skills without a modelled effect stay text-only: 1103/1108/1109/
-    1110/1111 combat procs, 1208/1209/1210 defense/fusion/solar, 1304-1307/
-    1309/1310 defense recovery/domes, 1303/1311 double-shield procs and 1308
-    rapid-fire reduction. `1112` contributes its fuel reduction only (the -2%
-    armour line is not modelled).
+    wired (Raider/Fighter). Moon destroy/make and expedition totals still have
+    no event counters, so those misc achievements stay at 0.
+  - Academy skills without a modelled effect stay text-only: 1208/1209/1210
+    defense/fusion/solar, 1304-1307/1309/1310 defense recovery/domes.
+    `1112` contributes its fuel reduction only (the -2% armour line is not
+    modelled).
   - Reward curves above the highest screenshot anchor are extrapolated. A
     boosted local admin Terraformer (level 100) would otherwise generate an
-    unrealistic AP total; the test admin was reset to Terraformer 20 for sane
-    numbers.
+    unrealistic AP total; the test admin is kept at Terraformer 20.
   - Collider production is captured only for levels 1-3; levels 4+ use the
     provisional quadratic (547L^2 + 4061L + 144). The combat +3%/level and
     premium `prem_prod_from_colly` multipliers are hooks, not yet captured.
-  - Planetarium relocation/fields are captured. The separate diameter upgrade
-    (100B metal + 50B crystal debris + 1 Stardust for +276..414 km / +12..18
-    fields) is not wired because 3Moons has no Stardust currency yet.
   - Voucher codes have a working redemption path but no admin UI; issue them
     with SQL into `vouchers` until the admin giveaway flow is extended.
 
 ## Start here next session
-
-**Finish P7**: add the Stardust currency and Planetarium diameter sink, port the
-expedition flavour catalogue, model the eight Academy damage procs, and decide
-whether to migrate remaining build costs to the captured values.
 
 **Continue P8**: port the Niburu artwork/shell reskin (private/local use), add
 richer spy/expedition report detail screens, and wire the remaining generic
 message writers (alliance/game/construction). B008 is still open and needs an
 exact page/SQL error.
 
-P6 follow-ups: multi-weapon Collider/Arsenal combat classes remain P7; the
-Planetarium diameter/Stardust sink is not wired because Stardust is not part
-of the 3Moons economy yet.
+P7 is closed. Follow-ups, if revisited: capture the exact Academy proc split,
+the remaining Academy defence/recovery effects, and whether existing build
+costs should move to the captured values.
 
 ## Operational gotchas
 
@@ -391,5 +409,5 @@ of the 3Moons economy yet.
 
 ## Git
 
-- Remote configured; P2-P5 commits pushed to `origin/main` (P5 commit added
-  after this handoff).
+- Remote configured; P0-P7 are pushed to `origin/main`. P8 remains a first
+  slice (archive/outbox + report summaries).

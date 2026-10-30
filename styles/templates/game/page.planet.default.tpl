@@ -4,16 +4,19 @@
 	<div class="title">{$LNG.bm_planetarium}</div>
 	{if $done}<div class="green" style="padding:6px;">{$LNG.bm_done}</div>{/if}
 	{if $error}<div class="red" style="padding:6px;">{$error}</div>{/if}
-	<p>{$LNG.bm_darkmatter}: <span class="res_921_text">{$darkmatter|number}</span></p>
+	<p>{$LNG.bm_darkmatter}: <span class="res_921_text">{$darkmatter|number}</span>
+		&nbsp;|&nbsp;{$LNG.bm_stardust}: <span class="res_stardust_text">{$stardust|number}</span></p>
 
 	<table style="width:100%;">
 		<thead>
 			<tr>
 				<th>{$LNG.bm_celestial}</th>
 				<th>{$LNG.bm_coords}</th>
+				<th>{$LNG.bm_diameter}</th>
 				<th>{$LNG.bm_fields}</th>
 				<th>{$LNG.bm_fields_bought}</th>
 				<th>{$LNG.bm_buy_fields}</th>
+				<th>{$LNG.bm_increase_diameter}</th>
 				<th>{$LNG.bm_teleport}</th>
 			</tr>
 		</thead>
@@ -22,6 +25,7 @@
 			<tr>
 				<td>{$celestial.name}{if $celestial.isMoon} ({$LNG.fcm_moon}){/if}</td>
 				<td>[{$celestial.galaxy}:{$celestial.system}:{$celestial.planet}]</td>
+				<td>{$celestial.diameter|number} km</td>
 				<td>{$celestial.fieldsCurrent} / {$celestial.fieldsMax}</td>
 				<td>{$celestial.fieldsBought}</td>
 				<td>
@@ -29,6 +33,12 @@
 						<input type="hidden" name="planet" value="{$celestial.id}">
 						<input type="number" name="fields" value="1" min="1" max="100" style="width:60px;">
 						<input type="submit" value="{$LNG.bm_buy} ({$celestial.fieldPrice|number} {$LNG.tech.921})">
+					</form>
+				</td>
+				<td>
+					<form action="game.php?page=planet&amp;mode=diameter" method="post">
+						<input type="hidden" name="planet" value="{$celestial.id}">
+						<input type="submit" value="{$LNG.bm_increase_diameter} (1 {$LNG.bm_stardust})">
 					</form>
 				</td>
 				<td>

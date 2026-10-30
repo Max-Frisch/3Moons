@@ -38,6 +38,7 @@ class ShowPlanetPage extends AbstractGamePage
 				'galaxy'		=> (int)$row['galaxy'],
 				'system'		=> (int)$row['system'],
 				'planet'		=> (int)$row['planet'],
+				'diameter'		=> (int)$row['diameter'],
 				'fieldsCurrent'	=> (int)$row['field_current'],
 				'fieldsMax'		=> CalculateMaxPlanetFields($row),
 				'fieldsBought'	=> (int)$row['fields_bought'],
@@ -53,6 +54,7 @@ class ShowPlanetPage extends AbstractGamePage
 		$this->assign(array(
 			'celestials'	=> $celestials,
 			'darkmatter'	=> (float)$USER['darkmatter'],
+			'stardust'		=> (float)$USER['stardust'],
 			'done'			=> HTTP::_GP('done', ''),
 			'error'			=> $error,
 			'maxGalaxy'		=> (int)$config->max_galaxy,
@@ -102,6 +104,83 @@ class ShowPlanetPage extends AbstractGamePage
 		}
 
 		$this->redirectTo('game.php?page=planet&done=fields');
+	}
+
+	public function diameter()
+	{
+		global $USER, $PLANET, $LNG;
+
+		$planetId = HTTP::_GP('planet', 0);
+		$db = Database::get();
+
+		$row = $db->selectSingle(
+			"SELECT * FROM %%PLANETS%% WHERE id = :planetId AND id_owner = :userId AND destruyed = 0;",
+			array(':planetId' => $planetId, ':userId' => $USER['id'])
+		);
+		if (empty($row) || !in_array((int)$row['planet_type'], array(1, 3), true)) {
+			$this->redirectTo('game.php?page=planet&error=unavailable');
+		}
+
+		$debris = self::debrisRow($db, $row);
+		if (empty($debris)
+			|| (float)$debris['der_metal'] < BlackMarket::DIAMETER_METAL_DEBRIS
+			|| (float)$debris['der_crystal'] < BlackMarket::DIAMETER_CRYSTAL_DEBRIS) {
+			$this->redirectTo('game.php?page=planet&error=debris');
+		}
+		if ((float)$USER['stardust'] < BlackMarket::DIAMETER_STARDUST) {
+			$this->redirectTo('game.php?page=planet&error=stardust');
+		}
+
+		list($diameterGain, $fieldGain) = BlackMarket::diameterGains(Expedition::rand(), Expedition::rand());
+		$handle = $db->getHandle();
+
+		try {
+			$handle->beginTransaction();
+
+			$db->update(
+				"UPDATE %%USERS%% SET stardust = stardust - :cost WHERE id = :userId AND stardust >= :cost;",
+				array(':cost' => BlackMarket::DIAMETER_STARDUST, ':userId' => $USER['id'])
+			);
+			$db->update(
+				"UPDATE %%PLANETS%% SET der_metal = der_metal - :metal, der_crystal = der_crystal - :crystal
+					WHERE id = :debrisId AND der_metal >= :metal AND der_crystal >= :crystal;",
+				array(
+					':metal' => BlackMarket::DIAMETER_METAL_DEBRIS,
+					':crystal' => BlackMarket::DIAMETER_CRYSTAL_DEBRIS,
+					':debrisId' => $debris['id'],
+				)
+			);
+			$db->update(
+				"UPDATE %%PLANETS%% SET diameter = diameter + :diameter, field_max = field_max + :fields WHERE id = :planetId;",
+				array(':diameter' => $diameterGain, ':fields' => $fieldGain, ':planetId' => $planetId)
+			);
+
+			$handle->commit();
+		} catch (Exception $e) {
+			if ($handle->inTransaction()) {
+				$handle->rollBack();
+			}
+			throw $e;
+		}
+
+		$USER['stardust'] = (float)$USER['stardust'] - BlackMarket::DIAMETER_STARDUST;
+		if ((int)$PLANET['id'] === (int)$planetId) {
+			$PLANET['diameter'] = (int)$PLANET['diameter'] + $diameterGain;
+			$PLANET['field_max'] = (int)$PLANET['field_max'] + $fieldGain;
+		}
+
+		$this->redirectTo('game.php?page=planet&done=diameter');
+	}
+
+	private static function debrisRow($db, $row)
+	{
+		if ((int)$row['planet_type'] === 1) {
+			return $row;
+		}
+		return $db->selectSingle(
+			"SELECT id, der_metal, der_crystal FROM %%PLANETS%% WHERE id_luna = :moonId;",
+			array(':moonId' => $row['id'])
+		);
 	}
 
 	public function relocate()

@@ -48,10 +48,6 @@ class MissionCaseExpedition extends MissionFunctions implements Mission
 			+ $this->_fleet['fleet_resource_deuterium'] + $this->_fleet['fleet_resource_darkmatter'];
 		$fleetCapacity = max(0, $fleetCapacity);
 
-		$pick = function($prefix, $count) use ($LNG) {
-			return $LNG[$prefix.mt_rand(1, $count)];
-		};
-
 		$outcome = Expedition::rollOutcome(Expedition::rand());
 
 		switch($outcome)
@@ -61,7 +57,7 @@ class MissionCaseExpedition extends MissionFunctions implements Mission
 				$this->UpdateFleet('fleet_resource_metal', $this->_fleet['fleet_resource_metal'] + $loot[901]);
 				$this->UpdateFleet('fleet_resource_crystal', $this->_fleet['fleet_resource_crystal'] + $loot[902]);
 				$this->UpdateFleet('fleet_resource_deuterium', $this->_fleet['fleet_resource_deuterium'] + $loot[903]);
-				$Message = $LNG['sys_expe_found_ress_1_'.mt_rand(1, 4)];
+				$Message = $LNG['sys_expe_found_ress_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_BLACKHOLE_LOOT:
@@ -73,18 +69,17 @@ class MissionCaseExpedition extends MissionFunctions implements Mission
 			break;
 
 			case Expedition::OUTCOME_STARDUST:
-				// No Stardust currency in 3Moons yet: pay out a resource find instead.
-				$loot = Expedition::loot($fleetCapacity, Expedition::rand());
-				$this->UpdateFleet('fleet_resource_metal', $this->_fleet['fleet_resource_metal'] + $loot[901]);
-				$this->UpdateFleet('fleet_resource_crystal', $this->_fleet['fleet_resource_crystal'] + $loot[902]);
-				$this->UpdateFleet('fleet_resource_deuterium', $this->_fleet['fleet_resource_deuterium'] + $loot[903]);
-				$Message = $LNG['sys_expe_stardust_unavailable'];
+				Database::get()->update(
+					"UPDATE %%USERS%% SET stardust = stardust + 1 WHERE id = :userId;",
+					array(':userId' => $this->_fleet['fleet_owner'])
+				);
+				$Message = $LNG['sys_expe_stardust_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_DARKMATTER:
 				$size = Expedition::darkMatter($fleetPoints, Expedition::rand());
 				$this->UpdateFleet('fleet_resource_darkmatter', $this->_fleet['fleet_resource_darkmatter'] + $size);
-				$Message = $LNG['sys_expe_found_dm_1_'.mt_rand(1, 5)];
+				$Message = $LNG['sys_expe_found_dm_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_SHIPS:
@@ -122,28 +117,28 @@ class MissionCaseExpedition extends MissionFunctions implements Mission
 					}
 				}
 
-				$Message = $LNG['sys_expe_found_ships_1_'.mt_rand(1, 4)].$FoundShipMess;
+				$Message = $LNG['sys_expe_found_ships_'.Expedition::flavour($outcome, Expedition::rand())].$FoundShipMess;
 			break;
 
 			case Expedition::OUTCOME_NOTHING:
-				$Message = $pick('sys_expe_nothing_', 9);
+				$Message = $LNG['sys_expe_nothing_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_DELAY:
 				$adjust = 600 + mt_rand(0, 6600);
 				$this->UpdateFleet('fleet_end_time', $this->_fleet['fleet_end_time'] + $adjust);
-				$Message = $pick('sys_expe_time_slow_', 6);
+				$Message = $LNG['sys_expe_time_slow_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_FAST:
 				$adjust = 600 + mt_rand(0, 5400);
 				$this->UpdateFleet('fleet_end_time', max($this->_fleet['fleet_start_time'] + 60, $this->_fleet['fleet_end_time'] - $adjust));
-				$Message = $pick('sys_expe_time_fast_', 3);
+				$Message = $LNG['sys_expe_time_fast_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_BLACKHOLE:
 				$this->KillFleet();
-				$Message = $pick('sys_expe_lost_fleet_', 4);
+				$Message = $LNG['sys_expe_lost_fleet_'.Expedition::flavour($outcome, Expedition::rand())];
 			break;
 
 			case Expedition::OUTCOME_COMBAT:
